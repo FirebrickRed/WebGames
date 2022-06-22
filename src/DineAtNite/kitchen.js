@@ -9,7 +9,6 @@ export class Kitchen extends Phaser.GameObjects.Container {
     this.add([this.ticketHolder, this.sink]);
 
     this.scene.events.on('startMeal', tableNumber => {
-      console.log('in start meal i think???', tableNumber);
       this.meals.push(new Meal(this.scene, 400, 75, tableNumber));
     });
   }
@@ -30,8 +29,9 @@ export class TicketHolder extends Phaser.GameObjects.Image {
         x: this.parentContainer.x + this.x,
         y: this.parentContainer.y + this.y,
         status: 'pending',
-        dropOff: 'OrderTicket',
-        object: this
+        emit: () => {
+          this.scene.events.emit('ticketHolderTakesTicket');
+        }
       });
     });
   }
@@ -42,6 +42,15 @@ export class Sink extends Phaser.GameObjects.Image {
     super(scene, x, y, 'cleanSink');
     this.name = 'Sink';
     this.setInteractive();
+
+    this.on('pointerup', () => {
+      this.scene.events.emit('addTask', {
+        x: this.parentContainer.x + this.x,
+        y: this.parentContainer.y + this.y,
+        status: 'pending',
+        emit: () => this.scene.events.emit('walkToSink', this)
+      });
+    });
   }
 }
 
@@ -57,11 +66,11 @@ export class OrderTicket extends Phaser.GameObjects.Image {
     this.body.setAllowGravity(false);
   }
 
-  // droppedOff() {
-  //   this.scene.events.emit('startMeal', this.tableNumber);
-  //   this.destroy();
-  //   return null;
-  // }
+  droppedOff() {
+    this.scene.events.emit('startMeal', this.tableNumber);
+    this.destroy();
+    return null;
+  }
 }
 
 export class Meal extends Phaser.GameObjects.Image {
@@ -73,24 +82,37 @@ export class Meal extends Phaser.GameObjects.Image {
     scene.children.add(this);
     scene.physics.add.existing(this);
     this.body.setAllowGravity(false);
+    this.isPickedUp = false;
+    this.isDirty = false;
 
-    // this.on('pointerup', () => {
-    //   this.scene.events.emit('addTask', {
-    //     x: this.x,
-    //     y: this.y,
-    //     status: 'pending',
-    //     pickUp: this,
-    //     tableNumber: this.tableNumber,
-    //     afterPickup: () => {
-    //       console.log(':thinking:');
-    //     }
-    //   });
-    // });
+    this.on('pointerup', () => {
+      if(!this.isPickedUp) {
+        this.scene.events.emit('addTask', {
+          x: this.x,
+          y: this.y,
+          status: 'pending',
+          emit: () => this.scene.events.emit('pickUpMeal', this)
+        });
+      }
+    });
   }
 
-  // droppedOff() {
-  //   this.scene.events.emit('startEating');
-  //   this.setTexture('dirtyDishes');
-  //   return null;
-  // }
+  setIsPickedUp(pickedUp) {
+    this.isPickedUp = pickedUp
+  }
+
+  setDirtyDishes() {
+    this.setTexture('dirtyDishes');
+    this.isDirty = true;
+  }
+
+  droppedOff() {
+    this.scene.events.emit('startEating', this);
+    return null;
+  }
+
+  cleanDish() {
+    this.destroy();
+    return null;
+  }
 }

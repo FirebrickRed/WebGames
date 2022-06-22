@@ -37,6 +37,15 @@ class Customer extends Phaser.GameObjects.Sprite {
         this.y = this.originalPointY;
       }
     });
+
+    this.scene.events.on('startEating', meal => {
+      if(this.booth && this.booth.tableNumber === meal.tableNumber) {
+        // add timer for dramatic effects
+        console.log('add timer for dramatic effects: ');
+        this.booth.finishedEating(meal);
+        this.destroy();
+      }
+    });
   }
 }
 

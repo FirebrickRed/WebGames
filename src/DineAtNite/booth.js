@@ -5,8 +5,7 @@ class Booth extends Phaser.GameObjects.Container {
     super(scene, x, y);
     this.name = 'booth';
     this.isOccupied = false;
-    this.isDirty = false;
-    this.tableNumber = tableNumber
+    this.tableNumber = tableNumber;
 
     this.table = new Table(scene, 0, 0);
     this.leftChair = new Chair(scene, -80, 0, true);
@@ -26,6 +25,16 @@ class Booth extends Phaser.GameObjects.Container {
     console.log('in order taken');
     this.orderTicket = null;
   }
+
+  dishesTaken() {
+    this.dirtyDishes = null;
+    this.isOccupied = false;
+  }
+
+  finishedEating(meal) {
+    meal.setDirtyDishes();
+    this.dirtyDishes = meal;
+  }
 }
 
 class Table extends Phaser.GameObjects.Image {
@@ -35,27 +44,30 @@ class Table extends Phaser.GameObjects.Image {
     this.setInteractive();
 
     this.on('pointerup', () => {
-      let pickup;
-
-      if(this.parentContainer.orderTicket) {
-        pickup = this.parentContainer.orderTicket;
-      }
-      if(this.parentContainer.dirtyDishes) {
-        pickup = this.parentContainer.dirtyDishes;
-      }
-
-      this.scene.events.emit('addTask', {
+      let task = {
         x: this.parentContainer.x,
         y: this.parentContainer.y,
         status: 'pending',
-        pickUp: pickup,
-        dropOff: 'Meal',
-        tableNumber: this.parentContainer.tableNumber,
-        object: this.parentContainer,
-        afterPickup: () => {
-          this.parentContainer.orderTaken();
+        isStandAbove: true,
+        emit: () => this.scene.events.emit('walkToBooth', this.parentContainer)
+      }
+      if(this.parentContainer.orderTicket) {
+        task.emit = () => {
+          let isTicketTaken = this.scene.events.emit('takeTicketFromTable', this.parentContainer.orderTicket);
+          if(isTicketTaken) {
+            this.parentContainer.orderTaken();
+          }
         }
-      });
+      } else if(this.parentContainer.dirtyDishes) {
+        task.emit = () => {
+          let isDishesTaken = this.scene.events.emit('takeDirtyDishesFromTable', this.parentContainer.dirtyDishes);
+          if(isDishesTaken) {
+            this.parentContainer.dishesTaken();
+          }
+        }
+      }
+
+      this.scene.events.emit('addTask', task);
     });
   }
 }

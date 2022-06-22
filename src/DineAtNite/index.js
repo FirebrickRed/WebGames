@@ -59,50 +59,64 @@ function create() {
     if(pointer.rightButtonDown()) {
       player.clearTasks();
     }
-  })
-
-  // this.input.on('gameobjectup', (pointer, gameObject, event) => {
-    // console.log(gameObject)
-    // switch(gameObject.name) {
-    //   case 'table':
-    //     player.addTask({
-    //       x: gameObject.parentContainer.x,
-    //       y: gameObject.parentContainer.y - player.height,
-    //       status: 'pending',
-    //       isPickUp: true,
-    //       object: gameObject.parentContainer
-    //     });
-    //     break;
-    //   case 'TicketHolder':
-    //     player.addTask({
-    //       x: gameObject.parentContainer.x + gameObject.x,
-    //       y: gameObject.parentContainer.y + gameObject.y + player.height,
-    //       status: 'pending',
-    //       isPickUp: false,
-    //       object: gameObject.parentContainer
-    //     });
-    //     break;
-    //   case 'Sink':
-    //     player.addTask({
-    //       x: gameObject.parentContainer.x + gameObject.x,
-    //       y: gameObject.parentContainer.y + gameObject.y + player.height,
-    //       status: 'pending',
-    //       isPickUp: false,
-    //       object: gameObject.parentContainer
-    //     });
-    //     break;
-    //   case 'meal':
-    //     player.addTask({
-    //       x: gameObject.x,
-    //       y: gameObject.y,
-    //       status: 'pending',
-    //       isPickUp: true,
-    //       object: gameObject
-    //     });
-    //     break;
-    // }
-  // });
+  });
 }
 
 function update() {
 }
+
+
+
+
+/*
+
+To Do:
+- Add in timers
+  - Have customers look at menu before ordering
+  - Have kitchen take time to make food
+  - Have customers take time to eat food
+
+- Fix placement of meal and dirty dishes
+
+- Add in score
+
+- Add in levels
+
+- Ability to save scores and level status
+
+- Add in endless mode
+
+- Reset game button?
+
+- Add in animations
+  - Player walking animations
+  - Player holding animations
+  - TicketHolder spin animation?? Not sure how ticket holder is going to look
+  - Sink animation
+  - Kitchen animation 
+  - Customers
+    - Frustration animation
+    - Happy animation
+    - Eating animation
+    - menu animation
+    - ready to order animation
+    - Leaving animation
+
+- Customers
+  - Have more than one Customer in a group
+  - Have different colors for customers
+  - Have different customer types
+  - When Hovering over chairs, customer *clicks* into place
+  - Happiness counters
+  - Leaves when To upsetti spaghetti
+
+- Tables
+  - Add in color coated seats
+  - Add in score multiplier for same colors
+  - Add bigger colors
+  - Number signs for tables
+
+- Meals
+  - Number sign for corrisponding table
+  - Different meal types?? Randomly assigns?
+*/
