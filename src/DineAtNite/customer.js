@@ -9,6 +9,7 @@ class Customer extends Phaser.GameObjects.Sprite {
     this.originalPointY = y;
     this.isSeated = false;
     this.booth = null;
+    this.speed = 10000;
 
     this.on('drag', (pointer, dragX, dragY) => {
       if(!this.isSeated) {
@@ -25,7 +26,9 @@ class Customer extends Phaser.GameObjects.Sprite {
         this.flipX = !target.isLeft;
         this.booth.setBoothOccupied(true);
         this.disableInteractive();
-        this.booth.readyToOrder();
+        this.scene.time.delayedCall(this.speed, () => {
+          this.booth.readyToOrder();
+        });
       } else {
         this.x = this.originalPointX;
         this.y = this.originalPointY;
@@ -40,10 +43,10 @@ class Customer extends Phaser.GameObjects.Sprite {
 
     this.scene.events.on('startEating', meal => {
       if(this.booth && this.booth.tableNumber === meal.tableNumber) {
-        // add timer for dramatic effects
-        console.log('add timer for dramatic effects: ');
-        this.booth.finishedEating(meal);
-        this.destroy();
+        this.scene.time.delayedCall(this.speed, () => {
+          this.booth.finishedEating(meal);
+          this.destroy();
+        });
       }
     });
   }

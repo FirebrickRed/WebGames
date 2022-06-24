@@ -9,7 +9,9 @@ export class Kitchen extends Phaser.GameObjects.Container {
     this.add([this.ticketHolder, this.sink]);
 
     this.scene.events.on('startMeal', tableNumber => {
-      this.meals.push(new Meal(this.scene, 400, 75, tableNumber));
+      this.scene.time.delayedCall(5000, () => {
+        this.meals.push(new Meal(this.scene, 400, 75, tableNumber));
+      });
     });
   }
 

@@ -71,11 +71,6 @@ function update() {
 /*
 
 To Do:
-- Add in timers
-  - Have customers look at menu before ordering
-  - Have kitchen take time to make food
-  - Have customers take time to eat food
-
 - Fix placement of meal and dirty dishes
 
 - Add in score
