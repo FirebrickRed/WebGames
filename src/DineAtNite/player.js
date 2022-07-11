@@ -22,12 +22,10 @@ class Player extends Phaser.GameObjects.Sprite {
 
     this.scene.events.on('walkToBooth', booth => {
       if(this.leftHand && this.leftHand.name === 'Meal' && !this.leftHand.isDirty && this.leftHand.tableNumber === booth.tableNumber ) {
-        console.log('I has your food sir!');
-        this.leftHand = this.leftHand.droppedOff();
+        this.leftHand = this.leftHand.droppedOff(booth.x, booth.y);
       }
       if(this.rightHand && this.rightHand.name === 'Meal' && this.rightHand.tableNumber === booth.tableNumber) {
-        console.log('I has your food Ma\'am');
-        this.rightHand = this.rightHand.droppedOff();
+        this.rightHand = this.rightHand.droppedOff(booth.x, booth.y);
       }
       this.finishedTask();
     });

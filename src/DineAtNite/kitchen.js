@@ -10,7 +10,16 @@ export class Kitchen extends Phaser.GameObjects.Container {
 
     this.scene.events.on('startMeal', tableNumber => {
       this.scene.time.delayedCall(5000, () => {
-        this.meals.push(new Meal(this.scene, 400, 75, tableNumber));
+        let mealCount = this.meals.length+1;
+        console.log(mealCount)
+        let mealX = 350;
+        let mealY = 75;
+        if(mealCount % 2 === 0) {
+          mealX += 75;
+        } else if (mealCount % 3 === 0) {
+          mealX += 150;
+        }
+        this.meals.push(new Meal(this.scene, mealX, mealY, tableNumber));
       });
     });
   }
@@ -108,7 +117,9 @@ export class Meal extends Phaser.GameObjects.Image {
     this.isDirty = true;
   }
 
-  droppedOff() {
+  droppedOff(newX, newY) {
+    this.x = newX;
+    this.y = newY;
     this.scene.events.emit('startEating', this);
     return null;
   }

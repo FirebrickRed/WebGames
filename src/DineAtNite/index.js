@@ -71,8 +71,6 @@ function update() {
 /*
 
 To Do:
-- Fix placement of meal and dirty dishes
-
 - Add in score
 
 - Add in levels
