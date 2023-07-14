@@ -54,6 +54,10 @@ function create() {
   this.add.existing(booth2);
   this.add.existing(new Customer(this, 50, 525));
   this.add.existing(new Customer(this, 50, 425));
+  // let customerGroup1 = new CustomerGroup(this, 50, 525, 1);
+  // let customerGroup2 = new CustomerGroup(this, 50, 425, 2);
+  // this.add.existing(customerGroup1);
+  // this.add.existing(customerGroup2);
 
   this.input.on('pointerdown', pointer => {
     if(pointer.rightButtonDown()) {

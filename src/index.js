@@ -16,6 +16,9 @@ Idle Games
 Sheep Sheerer
 Fishing
 Barista
+Snake
+Minesweeper
+card games
 
 Grocheries (Click on a department and play minigames in that department)
   Alternatively could be store manager, You start off small with like one department

@@ -11,7 +11,6 @@ export class Kitchen extends Phaser.GameObjects.Container {
     this.scene.events.on('startMeal', tableNumber => {
       this.scene.time.delayedCall(5000, () => {
         let mealCount = this.meals.length+1;
-        console.log(mealCount)
         let mealX = 350;
         let mealY = 75;
         if(mealCount % 2 === 0) {

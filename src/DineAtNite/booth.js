@@ -22,7 +22,6 @@ class Booth extends Phaser.GameObjects.Container {
   }
 
   orderTaken() {
-    console.log('in order taken');
     this.orderTicket = null;
   }
 
