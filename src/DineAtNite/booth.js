@@ -8,8 +8,8 @@ class Booth extends Phaser.GameObjects.Container {
     this.tableNumber = tableNumber;
 
     this.table = new Table(scene, 0, 0);
-    this.leftChair = new Chair(scene, -80, 0, true);
-    this.rightChair = new Chair(scene, 80, 0, false);
+    this.leftChair = new Chair(scene, -80, 0, true, 0);
+    this.rightChair = new Chair(scene, 80, 0, false, 1);
     this.add([this.table, this.leftChair, this.rightChair]);
   }
   
@@ -72,11 +72,12 @@ class Table extends Phaser.GameObjects.Image {
 }
 
 class Chair extends Phaser.GameObjects.Image {
-  constructor(scene, x, y, isLeft) {
+  constructor(scene, x, y, isLeft, setNumber) {
     super(scene, x, y, 'chair');
     this.name = `${isLeft ? 'Left' : 'Right'}Chair`;
     this.isLeft = isLeft;
     this.flipX = !isLeft;
+    this.number = setNumber
     this.setInteractive({ dropZone: true });
   }
 

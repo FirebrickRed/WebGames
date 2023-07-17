@@ -1,4 +1,4 @@
-import Customer from "./customer";
+import CustomerGroup from "./customer";
 import Booth from "./booth";
 import Player from "./player";
 import { Kitchen } from "./kitchen";
@@ -52,12 +52,13 @@ function create() {
   let booth2 = new Booth(this, 550, 400, 2);
   this.add.existing(booth1);
   this.add.existing(booth2);
-  this.add.existing(new Customer(this, 50, 525));
-  this.add.existing(new Customer(this, 50, 425));
-  // let customerGroup1 = new CustomerGroup(this, 50, 525, 1);
-  // let customerGroup2 = new CustomerGroup(this, 50, 425, 2);
-  // this.add.existing(customerGroup1);
-  // this.add.existing(customerGroup2);
+  // this.add.existing(new Customer(this, 50, 525, 1));
+  // this.add.existing(new Customer(this, 50, 425, 2));
+  console.log('before customer group')
+  let customerGroup1 = new CustomerGroup(this, 50, 525, 1);
+  let customerGroup2 = new CustomerGroup(this, 50, 425, 2);
+  this.add.existing(customerGroup1);
+  this.add.existing(customerGroup2);
 
   this.input.on('pointerdown', pointer => {
     if(pointer.rightButtonDown()) {
@@ -103,7 +104,6 @@ To Do:
   - Have more than one Customer in a group
   - Have different colors for customers
   - Have different customer types
-  - When Hovering over chairs, customer *clicks* into place
   - Happiness counters
   - Leaves when To upsetti spaghetti
 

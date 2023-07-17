@@ -24,7 +24,12 @@ export class Kitchen extends Phaser.GameObjects.Container {
   }
 
   orderTaken(tableNumber) {
-    this.meals.filter(meal => meal.tableNumber !== tableNumber);
+    this.meals.forEach((meal, index) => {
+      if(meal.tableNumber === tableNumber) {
+        meal.destroy();
+        this.meals.splice(index, 1);
+      }
+    });
   }
 }
 

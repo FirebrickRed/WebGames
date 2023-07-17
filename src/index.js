@@ -20,6 +20,8 @@ Snake
 Minesweeper
 card games
 
+Katie will design houses for the house
+
 Grocheries (Click on a department and play minigames in that department)
   Alternatively could be store manager, You start off small with like one department
   and then can either be gaining money or losing money and as you gain money you
