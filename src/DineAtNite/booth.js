@@ -1,4 +1,5 @@
 import { OrderTicket } from "./kitchen";
+import { colors } from './constants';
 
 class Booth extends Phaser.GameObjects.Container {
   constructor(scene, x, y, tableNumber) {
@@ -8,9 +9,8 @@ class Booth extends Phaser.GameObjects.Container {
     this.tableNumber = tableNumber;
 
     this.table = new Table(scene, 0, 0);
-    this.leftChair = new Chair(scene, -80, 0, true, 0);
-    this.rightChair = new Chair(scene, 80, 0, false, 1);
-    this.add([this.table, this.leftChair, this.rightChair]);
+    this.chairs = [new Chair(scene, -80, 0, true, 0), new Chair(scene, 80, 0, false, 1)];
+    this.add([this.table, ...this.chairs]);
   }
   
   setBoothOccupied(isBoothOccupied) {
@@ -71,14 +71,25 @@ class Table extends Phaser.GameObjects.Image {
   }
 }
 
-class Chair extends Phaser.GameObjects.Image {
+class Chair extends Phaser.GameObjects.Container {
   constructor(scene, x, y, isLeft, setNumber) {
-    super(scene, x, y, 'chair');
+    super(scene, x, y);
     this.name = `${isLeft ? 'Left' : 'Right'}Chair`;
     this.isLeft = isLeft;
-    this.flipX = !isLeft;
-    this.number = setNumber
+    this.number = setNumber;
+
+    this.chairBase = scene.add.image(0, 0, 'ChairBase').setOrigin(0.5);
+    this.chairColor = scene.add.image(0, 0, 'ChairColor').setOrigin(0.5);
+    this.chairBase.flipX = !isLeft;
+    this.chairColor.flipX = !isLeft;
+
+    this.setSize(this.chairBase.width, this.chairBase.height);
     this.setInteractive({ dropZone: true });
+    this.add([this.chairBase, this.chairColor]);
+  }
+
+  setColor(color) {
+    this.chairColor.setTint(colors[color]);
   }
 
   getIsOccupied() {

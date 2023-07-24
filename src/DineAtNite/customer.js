@@ -1,3 +1,5 @@
+import { colors } from './constants';
+
 class CustomerGroup extends Phaser.GameObjects.Container {
   constructor(scene, x, y, numberOfCustomers) {
     super(scene, x, y);
@@ -9,25 +11,42 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     this.isOverChair = false;
     this.booth = null;
     this.speed = 10000;
+    this.draggingCustomer;
     
     let totalWidth = 0;
+    // Render all customers and put them in a variable array
     for(let i = 0; i < this.numberOfCustomers; i++) {
       // TODO have to adjust to accomidate for space between the characters
-      const customer = new Customer(scene, i*34, 0, `customer ${i}`, i);
+      const customer = new Customer(scene, i*55, 0, `customer ${i}`, i);
       totalWidth += customer.width;
+      customer.setColor();
       this.customers.push(customer);
     }
-    
     this.add(this.customers);
-    let width = 100;
-    let height = this.customers[0].height;
-    this.setSize(width, height);
+
+    this.setSize(totalWidth, this.customers[0].height);
     this.setInteractive({ draggable: true });
-    console.log(this);
+
+    this.on('pointerdown', (pointer, localX, localY, event) => {
+      // Gets which customer is being dragged
+      let topMostChild = null;
+      let topMostDepth = -1;
+      this.list.forEach(child => {
+        if (child.getBounds().contains(pointer.x, pointer.y)) {
+          if (child.depth > topMostDepth) {
+            topMostChild = child;
+            topMostDepth = child.depth;
+          }
+        }
+      });
+      if (topMostChild) {
+        console.log('Clicked child: ' + topMostChild.name + ' ' + topMostChild.color);
+        this.draggingCustomer = topMostChild;
+      }
+    });
 
     this.on('drag', (pointer, dragX, dragY) => {
       if(!this.isSeated && !this.isOverChair) {
-        console.log('in drag')
         this.setPosition(dragX, dragY);
       }
     });
@@ -38,24 +57,39 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     });
     this.on('dragover', (pointer, target) => {
       this.isOverChair = true;
-      this.x = target.x + target.parentContainer.x;
-      this.y = target.parentContainer.y;
-      // To do: for second customer have them sit on the other chair
+      const table = target.parentContainer;
+      this.setPosition(table.x, table.y);
+
+      for (let i = 0; i < this.customers.length; i++) {
+        const currentCustomerIndex = (this.draggingCustomer.number + i) % this.customers.length;
+        const currentChairIndex = (target.number + i) % target.parentContainer.chairs.length;
+        const chair = target.parentContainer.chairs[currentChairIndex];
+        this.customers[currentCustomerIndex].flipX = !chair.isLeft;
+        this.customers[currentCustomerIndex].chair = chair;
+
+        console.log({customer: this.customers[currentCustomerIndex].color, customerX: this.customers[currentCustomerIndex].x, customerY: this.customers[currentCustomerIndex].y, chair: chair.name, chairX: chair.x, chairY: chair.y})
+
+        this.customers[currentCustomerIndex].setPosition(chair.x, chair.y);
+        // this.customers[currentCustomerIndex].setPosition(0, 0);
+      }
     });
-    this.on('dragleave', () => {
+    this.on('dragleave', (pointer) => {
       this.isOverChair = false;
+      console.log('in dragleave', {pointer})
+      // this.setPosition(pointer.x, pointer.y);
+      this.draggingCustomer.setPosition(0, 0);
     });
     this.on('drop', (pointer, target) => {
       if(target.getIsOccupied()) {
+        // TODO need to make customer draggable again not sure why broken
         console.log('in occupied table?', this)
         this.setPosition(this.originalPointX, this.originalPointY);
       } else {
         this.booth = target.parentContainer;
         this.isSeated = true;
-        this.x = this.booth.x + target.x;
-        this.y = this.booth.y;
-        this.flipX = !target.isLeft;
+        this.setPosition(this.booth.x, this.booth.y);
         this.booth.setBoothOccupied(true);
+        this.customers.forEach(customer => customer.chair.setColor(customer.color));
         this.disableInteractive();
         this.scene.time.delayedCall(this.speed, () => {
           this.booth.readyToOrder();
@@ -74,11 +108,28 @@ class CustomerGroup extends Phaser.GameObjects.Container {
   }
 }
 
-class Customer extends Phaser.GameObjects.Sprite {
+class Customer extends Phaser.GameObjects.Container {
   constructor(scene, x, y, setName, setNumber) {
-    super(scene, x, y, 'customer');
+    super(scene, x, y);
     this.name = setName;
     this.number = setNumber
+    this.color;
+    this.chair;
+
+    this.customerBase = scene.add.image(0, 0, 'IaniteBase').setOrigin(0.5);
+    this.customerColor = scene.add.image(0, 0, 'IaniteColor').setOrigin(0.5);
+    
+    this.setSize(this.customerBase.width, this.customerBase.height);
+    this.add([this.customerBase, this.customerColor]);
+  }
+
+  setColor() {
+    const colorKey = Object.keys(colors);
+    const randomIndex = Math.floor(Math.random() * colorKey.length);
+    const randomColor = colorKey[randomIndex]
+    this.color = randomColor;
+    this.customerColor.setTint(colors[this.color])
+    console.log(`${this.name} ${this.color}`)
   }
 }
 

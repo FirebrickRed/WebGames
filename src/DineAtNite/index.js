@@ -6,8 +6,12 @@ import { Kitchen } from "./kitchen";
 const game = new Phaser.Game({
   title: 'DineAtNite',
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  width: 1280,
+  height: 720,
+  scale: {
+    mode: Phaser.Scale.RESIZE,
+    autoCenter: Phaser.Scale.CENTER_BOTH
+  },
   physics: {
     default: 'arcade',
     arcade: {
@@ -26,10 +30,13 @@ let player;
 function preload() {
   this.load.image('background', './assets/bg.jpg');
   // this.load.spritesheet('player', './assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-  this.load.image('player', './assets/penguin.png');
-  this.load.image('customer', './assets/crab.png');
+  this.load.image('player', './assets/DineAtNite/Sparx.png');
+  // this.load.image('customer', './assets/crab.png');
+  this.load.image('IaniteBase', './assets/DineAtNite/IaniteBase.png');
+  this.load.image('IaniteColor', './assets/DineAtNite/IaniteColor.png');
   this.load.image('table', './assets/table.png');
-  this.load.image('chair', './assets/chair.png');
+  this.load.image('ChairBase', './assets/DineAtNite/ChairBase.png');
+  this.load.image('ChairColor', './assets/DineAtNite/ChairColor.png');
   this.load.image('OrderTicket', './assets/orderTicket.jpg');
   this.load.image('TicketHolder', './assets/orderticketholder.jpg');
   this.load.image('cleanSink', './assets/cleanSink.jpg');
