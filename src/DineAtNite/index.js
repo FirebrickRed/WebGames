@@ -3,14 +3,129 @@ import Booth from "./booth";
 import Player from "./player";
 import { Kitchen } from "./kitchen";
 
+
+
+class MenuScene extends Phaser.Scene {
+  constructor() {
+    super({ key: 'MenuScene' });
+  }
+
+  preload() {}
+
+  create() {
+    this.add.text(200, 250, 'Welcome to Dine-At-Nite!', { fontSize: '32px', fill: '#fff' });
+    this.startButton = this.add.text(300, 350, 'Endless Mode!', { fontSize: '24px', fill: '#fff' });
+    this.startButton.setInteractive();
+    this.startButton.on('pointerdown', () => { this.scene.start('GameScene'); });
+  }
+}
+
+class GameOverScene extends Phaser.Scene {
+  constructor() {
+    super({ key: 'GameOverScene' });
+  }
+
+  create() {
+    this.add.text(200, 250, 'Game Over!', { fontSize: '32px', fill: '#fff' });
+
+    this.restartButton = this.add.text(300, 350, 'Return to Menu', { fontSize: '24px', fill: '#fff' });
+    this.restartButton.setInteractive();
+    this.restartButton.on('pointerdown', () => {
+      this.scene.start('MenuScene');
+    });
+  }
+}
+
+class GameScene extends Phaser.Scene {
+  constructor() {
+    super({ key: 'GameScene' });
+    this.score = 0;
+    this.scoreText;
+    this.customerGroups = [];
+    this.nextCustomerTime = Phaser.Math.Between(15000, 30000);
+    this.initialCustomerX = 50;
+    this.initialCustomerY = 525;
+    this.spacingY = 100;
+    this.currentY = this.initialCustomerY;
+  }
+
+  preload() {
+    this.load.image('background', './assets/bg.jpg');
+    // this.load.spritesheet('player', './assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.image('player', './assets/DineAtNite/Sparx.png');
+    this.load.image('IaniteBase', './assets/DineAtNite/IaniteBase.png');
+    this.load.image('IaniteColor', './assets/DineAtNite/IaniteColor.png');
+    this.load.image('table', './assets/table.png');
+    this.load.image('ChairBase', './assets/DineAtNite/ChairBase.png');
+    this.load.image('ChairColor', './assets/DineAtNite/ChairColor.png');
+    this.load.image('OrderTicket', './assets/orderTicket.jpg');
+    this.load.image('TicketHolder', './assets/orderticketholder.jpg');
+    this.load.image('cleanSink', './assets/cleanSink.jpg');
+    this.load.image('Meal', './assets/meal.png');
+    this.load.image('dirtyDishes', './assets/dirtyDishes.png');
+  }
+
+  create() {
+    this.add.image(0, 0, 'background').setOrigin(0);
+    this.input.mouse.disableContextMenu();
+
+    this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#fff' });
+
+    let kitchen = new Kitchen(this, 400, 0);
+    this.add.existing(kitchen);
+
+    let player = new Player(this, 150, 175);
+    this.add.existing(player);
+
+    let booth1 = new Booth(this, 250, 400, 1);
+    let booth2 = new Booth(this, 550, 400, 2);
+    this.add.existing(booth1);
+    this.add.existing(booth2);
+
+    this.input.on('pointerdown', pointer => {
+      if(pointer.rightButtonDown()) {
+        player.clearTasks();
+      }
+    })
+  }
+
+  updateScore(points) {
+    this.score += points;
+    console.log('Score: ', this.score);
+    this.scoreText.setText('Score: ' + this.score);
+  }
+
+  update(time, delta) {
+    this.customerGroups.forEach(customerGroup => {
+      customerGroup.update(time, delta);
+    });
+
+    if (this.score < 0) {
+      this.scene.start('GameOverScene');
+    }
+
+    if (time > this.nextCustomerTime) {
+      const groupSize = Phaser.Math.Between(1, 2);
+
+      const customerGroup = new CustomerGroup(this, this.initialCustomerX, this.currentY, groupSize);
+      this.customerGroups.push(customerGroup);
+      this.add.existing(customerGroup);
+
+      this.currentY -= this.spacingY;
+
+      this.nextCustomerTime = time + Phaser.Math.Between(15000, 30000);
+    }
+  }
+}
+
 const game = new Phaser.Game({
   title: 'DineAtNite',
   type: Phaser.AUTO,
   width: 1280,
   height: 720,
   scale: {
-    mode: Phaser.Scale.RESIZE,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    // mode: Phaser.Scale.RESIZE,
+    // autoCenter: Phaser.Scale.CENTER_BOTH
   },
   physics: {
     default: 'arcade',
@@ -18,65 +133,8 @@ const game = new Phaser.Game({
       gravity: { y: 300 }
     }
   },
-  scene: {
-    preload: preload,
-    create: create,
-    update: update
-  }
+  scene: [MenuScene, GameScene, GameOverScene]
 });
-
-let player;
-
-function preload() {
-  this.load.image('background', './assets/bg.jpg');
-  // this.load.spritesheet('player', './assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-  this.load.image('player', './assets/DineAtNite/Sparx.png');
-  // this.load.image('customer', './assets/crab.png');
-  this.load.image('IaniteBase', './assets/DineAtNite/IaniteBase.png');
-  this.load.image('IaniteColor', './assets/DineAtNite/IaniteColor.png');
-  this.load.image('table', './assets/table.png');
-  this.load.image('ChairBase', './assets/DineAtNite/ChairBase.png');
-  this.load.image('ChairColor', './assets/DineAtNite/ChairColor.png');
-  this.load.image('OrderTicket', './assets/orderTicket.jpg');
-  this.load.image('TicketHolder', './assets/orderticketholder.jpg');
-  this.load.image('cleanSink', './assets/cleanSink.jpg');
-  this.load.image('Meal', './assets/meal.png');
-  this.load.image('dirtyDishes', './assets/dirtyDishes.png');
-}
-
-function create() {
-  this.add.image(0, 0, 'background').setOrigin(0);
-  this.input.mouse.disableContextMenu();
-
-
-  let kitchen = new Kitchen(this, 400, 0);
-  this.add.existing(kitchen);
-  
-  player = new Player(this, 150, 175);
-  this.add.existing(player);
-
-  let booth1 = new Booth(this, 250, 400, 1);
-  let booth2 = new Booth(this, 550, 400, 2);
-  this.add.existing(booth1);
-  this.add.existing(booth2);
-  // this.add.existing(new Customer(this, 50, 525, 1));
-  // this.add.existing(new Customer(this, 50, 425, 2));
-  console.log('before customer group')
-  let customerGroup1 = new CustomerGroup(this, 50, 525, 1);
-  let customerGroup2 = new CustomerGroup(this, 50, 425, 2);
-  this.add.existing(customerGroup1);
-  this.add.existing(customerGroup2);
-
-  this.input.on('pointerdown', pointer => {
-    if(pointer.rightButtonDown()) {
-      player.clearTasks();
-    }
-  });
-}
-
-function update() {
-}
-
 
 
 
@@ -90,6 +148,10 @@ To Do:
 - Ability to save scores and level status
 
 - Add in endless mode
+  - 5 star resturant mode
+    - when customer finishes eating gain stars towards 5 stars
+    - when customer leaves unhappily lose stars towards 5 stars
+    - when lose enough stars game over
 
 - Reset game button?
 
@@ -108,14 +170,12 @@ To Do:
     - Leaving animation
 
 - Customers
-  - Have more than one Customer in a group
-  - Have different colors for customers
   - Have different customer types
   - Happiness counters
   - Leaves when To upsetti spaghetti
+  - more than 2 customers?
 
 - Tables
-  - Add in color coated seats
   - Add in score multiplier for same colors
   - Add bigger colors
   - Number signs for tables

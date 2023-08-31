@@ -12,6 +12,9 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     this.booth = null;
     this.speed = 10000;
     this.draggingCustomer;
+    this.happiness = 10;
+    this.patience = 15000;
+    this.isWaiting = true;
     
     let totalWidth = 0;
     // Render all customers and put them in a variable array
@@ -53,6 +56,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     this.on('dragend', ()=> {
       if(!this.isSeated) {
         this.setPosition(this.originalPointX, this.originalPointY);
+        this.customers.forEach(customer => customer.resetPosition());
       }
     });
     this.on('dragover', (pointer, target) => {
@@ -67,38 +71,36 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         this.customers[currentCustomerIndex].flipX = !chair.isLeft;
         this.customers[currentCustomerIndex].chair = chair;
 
-        console.log({customer: this.customers[currentCustomerIndex].color, customerX: this.customers[currentCustomerIndex].x, customerY: this.customers[currentCustomerIndex].y, chair: chair.name, chairX: chair.x, chairY: chair.y})
-
         this.customers[currentCustomerIndex].setPosition(chair.x, chair.y);
-        // this.customers[currentCustomerIndex].setPosition(0, 0);
       }
     });
-    this.on('dragleave', (pointer) => {
+    this.on('dragleave', () => {
       this.isOverChair = false;
-      console.log('in dragleave', {pointer})
-      // this.setPosition(pointer.x, pointer.y);
-      this.draggingCustomer.setPosition(0, 0);
+      this.customers.forEach(customer => customer.resetPosition());
     });
     this.on('drop', (pointer, target) => {
       if(target.getIsOccupied()) {
-        // TODO need to make customer draggable again not sure why broken
-        console.log('in occupied table?', this)
+        this.isOverChair = false;
         this.setPosition(this.originalPointX, this.originalPointY);
       } else {
+        this.isWaiting = false;
         this.booth = target.parentContainer;
         this.isSeated = true;
         this.setPosition(this.booth.x, this.booth.y);
         this.booth.setBoothOccupied(true);
         this.customers.forEach(customer => customer.chair.setColor(customer.color));
         this.disableInteractive();
+        this.scene.updateScore(20 * this.customers.length);
         this.scene.time.delayedCall(this.speed, () => {
           this.booth.readyToOrder();
+          this.isWaiting = true;
         });
       }
     });
 
     this.scene.events.on('startEating', meal => {
       if(this.booth && this.booth.tableNumber === meal.tableNumber) {
+        this.isWaiting = false;
         this.scene.time.delayedCall(this.speed, () => {
           this.booth.finishedEating(meal);
           this.destroy();
@@ -106,13 +108,29 @@ class CustomerGroup extends Phaser.GameObjects.Container {
       }
     });
   }
+
+  update(time, delta) {
+    if(!this.isWaiting) {
+      this.patience = time + 15000;
+    }
+    if(time > this.patience) {
+      this.happiness--;
+      this.patience = time + 15000;
+      console.log('Happiness ', this.happiness);
+    }
+    if (this.happiness <= 0) {
+      this.scene.updateScore(-480 - 20 * this.customers.length);
+      this.destroy();
+    }
+  }
 }
 
 class Customer extends Phaser.GameObjects.Container {
   constructor(scene, x, y, setName, setNumber) {
     super(scene, x, y);
     this.name = setName;
-    this.number = setNumber
+    this.number = setNumber;
+    this.originalPosition = {x, y};
     this.color;
     this.chair;
 
@@ -130,6 +148,10 @@ class Customer extends Phaser.GameObjects.Container {
     this.color = randomColor;
     this.customerColor.setTint(colors[this.color])
     console.log(`${this.name} ${this.color}`)
+  }
+
+  resetPosition() {
+    this.setPosition(this.originalPosition.x, this.originalPosition.y);
   }
 }
 
