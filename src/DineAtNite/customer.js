@@ -70,7 +70,6 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         const chair = target.parentContainer.chairs[currentChairIndex];
         this.customers[currentCustomerIndex].flipX = !chair.isLeft;
         this.customers[currentCustomerIndex].chair = chair;
-
         this.customers[currentCustomerIndex].setPosition(chair.x, chair.y);
       }
     });
@@ -91,6 +90,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         this.customers.forEach(customer => customer.chair.setColor(customer.color));
         this.disableInteractive();
         this.scene.updateScore(20 * this.customers.length);
+        this.scene.moveUpLine();
         this.scene.time.delayedCall(this.speed, () => {
           this.booth.readyToOrder();
           this.isWaiting = true;
@@ -99,14 +99,20 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     });
 
     this.scene.events.on('startEating', meal => {
-      if(this.booth && this.booth.tableNumber === meal.tableNumber) {
-        this.isWaiting = false;
-        this.scene.time.delayedCall(this.speed, () => {
-          this.booth.finishedEating(meal);
-          this.destroy();
-        });
+      if(this.scene) {
+        if(this.booth && this.booth.tableNumber === meal.tableNumber) {
+          this.isWaiting = false;
+          this.scene.time.delayedCall(this.speed, () => {
+            this.booth.finishedEating(meal);
+            this.destroy();
+          });
+        }
       }
     });
+  }
+
+  setY(y) {
+    this.setPosition(this.x, y);
   }
 
   update(time, delta) {
@@ -116,7 +122,6 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     if(time > this.patience) {
       this.happiness--;
       this.patience = time + 15000;
-      console.log('Happiness ', this.happiness);
     }
     if (this.happiness <= 0) {
       this.scene.updateScore(-480 - 20 * this.customers.length);
@@ -144,10 +149,9 @@ class Customer extends Phaser.GameObjects.Container {
   setColor() {
     const colorKey = Object.keys(colors);
     const randomIndex = Math.floor(Math.random() * colorKey.length);
-    const randomColor = colorKey[randomIndex]
+    const randomColor = colorKey[randomIndex];
     this.color = randomColor;
-    this.customerColor.setTint(colors[this.color])
-    console.log(`${this.name} ${this.color}`)
+    this.customerColor.setTint(colors[this.color]);
   }
 
   resetPosition() {

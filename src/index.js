@@ -1,8 +1,79 @@
 import Phaser from 'phaser';
 // import './helloworld';
 // import './tutorial';
-// import './DineAtNite';
-import './DineAtNite/index';
+import { createDineAtNiteGame } from './DineAtNite/index';
+
+const homePage = document.getElementById('homePage');
+const gamePage = document.getElementById('gamePage');
+let currentGamePlaying;
+
+const games = [
+  { name: 'Dine at Nite', url: 'dineatnite', createGame: createDineAtNiteGame, description: 'Diner dash inspired game' }
+];
+
+function showPage(pageId) {
+  const pages = document.getElementsByClassName('page');
+  for(let i = 0; i < pages.length; i++) {
+    pages[i].style.display = 'none';
+  }
+  if(document.getElementById(pageId)) {
+    document.getElementById(pageId).style.display = 'block';
+  }
+}
+
+function loadSubPage(subPageId) {
+  console.log('in loadsubpage: ', subPageId);
+  let gameToLoad = games.find(game => game.url === subPageId);
+  // document.addEventListener('DOMContentLoaded', () => {
+  //   console.log('in event listener');
+  // });
+  currentGamePlaying = gameToLoad.createGame();
+  document.getElementById('gameName').textContent = gameToLoad.name;
+  // if(gameToLoad) {
+  //   currentGamePlaying = new Phaser.Game(gameToLoad.gameCode);
+  // }
+}
+
+if(homePage) {
+  const gameList = document.getElementById('gameList');
+
+  games.forEach(game => {
+    const listItem = document.createElement('li');
+    const link = document.createElement('a');
+
+    link.textContent = game.name;
+    link.href = `#gamePage/${game.url}`;
+
+    listItem.appendChild(link);
+    gameList.appendChild(listItem);
+  });
+}
+
+window.addEventListener('hashchange', () => {
+  const hash = window.location.hash.slice(1);
+  
+  if(currentGamePlaying) {
+    currentGamePlaying.destroy(true);
+    currentGamePlaying = null;
+  }
+
+  if(hash.startsWith('gamePage/')) {
+    const subPageId = hash.substring('gamePage/'.length);
+    showPage('gamePage');
+    loadSubPage(subPageId);
+  } else {
+    showPage(hash || 'homePage');
+  }
+});
+
+const hash = window.location.hash.slice(1);
+if(hash.startsWith('gamePage/')) {
+  const subPageId = hash.substring('gamePage/'.length);
+  showPage('gamePage');
+  loadSubPage(subPageId);
+} else {
+  showPage(hash || 'homePage');
+}
 
 /*
 

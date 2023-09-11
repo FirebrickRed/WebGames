@@ -112,29 +112,43 @@ class GameScene extends Phaser.Scene {
       this.add.existing(customerGroup);
 
       this.currentY -= this.spacingY;
-
-      this.nextCustomerTime = time + Phaser.Math.Between(15000, 30000);
+      this.nextCustomerTime = time + Phaser.Math.Between(15000, 25000);
     }
+  }
+
+  moveUpLine() {
+    this.currentY = this.initialCustomerY;
+    this.customerGroups.forEach(customerGroup => {
+      if(!customerGroup.isSeated) {
+        customerGroup.setY(this.currentY);
+        this.currentY -= this.spacingY;
+      }
+    });
   }
 }
 
-const game = new Phaser.Game({
-  title: 'DineAtNite',
-  type: Phaser.AUTO,
-  width: 1280,
-  height: 720,
-  scale: {
-    // mode: Phaser.Scale.RESIZE,
-    // autoCenter: Phaser.Scale.CENTER_BOTH
-  },
-  physics: {
-    default: 'arcade',
-    arcade: {
-      gravity: { y: 300 }
-    }
-  },
-  scene: [MenuScene, GameScene, GameOverScene]
-});
+export function createDineAtNiteGame() {
+  const gameConfig = {
+    title: 'DineAtNite',
+    parent: 'gameCanvas',
+    type: Phaser.AUTO,
+    width: 1280,
+    height: 720,
+    scale: {
+      // mode: Phaser.Scale.RESIZE,
+      // autoCenter: Phaser.Scale.CENTER_BOTH
+    },
+    physics: {
+      default: 'arcade',
+      arcade: {
+        gravity: { y: 300 }
+      }
+    },
+    scene: [MenuScene, GameScene, GameOverScene]
+  };
+
+  return new Phaser.Game(gameConfig);
+}
 
 
 
