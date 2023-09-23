@@ -15,6 +15,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     this.happiness = 10;
     this.patience = 15000;
     this.isWaiting = true;
+    this.hearts = [];
     
     let totalWidth = 0;
     // Render all customers and put them in a variable array
@@ -26,6 +27,15 @@ class CustomerGroup extends Phaser.GameObjects.Container {
       this.customers.push(customer);
     }
     this.add(this.customers);
+
+    for (let i = 0; i < 5; i++) {
+      console.log('in for loop', x, y);
+      const heart = this.scene.add.image(-30, -40 + i * 20, 'Heart');
+      heart.setScale(0.3);
+      heart.setTint('0xff0000');
+      this.hearts.push(heart);
+      this.add(heart);
+    }
 
     this.setSize(totalWidth, this.customers[0].height);
     this.setInteractive({ draggable: true });
@@ -122,8 +132,14 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     if(time > this.patience) {
       this.happiness--;
       this.patience = time + 15000;
+      if(this.happiness % 2 === 0) {
+        this.hearts.forEach((heart, i) => {
+          heart.setTint(i < this.happiness/2 ? '0xff0000' : '0xffffff');
+        });
+      }
     }
     if (this.happiness <= 0) {
+      console.log('before error ', this.scene)
       this.scene.updateScore(-480 - 20 * this.customers.length);
       this.destroy();
     }

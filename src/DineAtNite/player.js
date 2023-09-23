@@ -113,7 +113,6 @@ class Player extends Phaser.GameObjects.Sprite {
   }
 
   finishedTask() {
-    console.log('current task', this.currentTask)
     this.currentTask = undefined;
   }
 

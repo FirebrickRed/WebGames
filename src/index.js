@@ -4,7 +4,6 @@ import Phaser from 'phaser';
 import { createDineAtNiteGame } from './DineAtNite/index';
 
 const homePage = document.getElementById('homePage');
-const gamePage = document.getElementById('gamePage');
 let currentGamePlaying;
 
 const games = [
@@ -24,14 +23,8 @@ function showPage(pageId) {
 function loadSubPage(subPageId) {
   console.log('in loadsubpage: ', subPageId);
   let gameToLoad = games.find(game => game.url === subPageId);
-  // document.addEventListener('DOMContentLoaded', () => {
-  //   console.log('in event listener');
-  // });
   currentGamePlaying = gameToLoad.createGame();
   document.getElementById('gameName').textContent = gameToLoad.name;
-  // if(gameToLoad) {
-  //   currentGamePlaying = new Phaser.Game(gameToLoad.gameCode);
-  // }
 }
 
 if(homePage) {

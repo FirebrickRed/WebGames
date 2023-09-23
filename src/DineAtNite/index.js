@@ -63,6 +63,7 @@ class GameScene extends Phaser.Scene {
     this.load.image('cleanSink', './assets/cleanSink.jpg');
     this.load.image('Meal', './assets/meal.png');
     this.load.image('dirtyDishes', './assets/dirtyDishes.png');
+    this.load.image('Heart', './assets/DineAtNite/heart.svg');
   }
 
   create() {
@@ -185,8 +186,6 @@ To Do:
 
 - Customers
   - Have different customer types
-  - Happiness counters
-  - Leaves when To upsetti spaghetti
   - more than 2 customers?
 
 - Tables
