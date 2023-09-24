@@ -50,20 +50,21 @@ class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('background', './assets/bg.jpg');
-    // this.load.spritesheet('player', './assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.image('player', './assets/DineAtNite/Sparx.png');
-    this.load.image('IaniteBase', './assets/DineAtNite/IaniteBase.png');
-    this.load.image('IaniteColor', './assets/DineAtNite/IaniteColor.png');
-    this.load.image('table', './assets/table.png');
-    this.load.image('ChairBase', './assets/DineAtNite/ChairBase.png');
-    this.load.image('ChairColor', './assets/DineAtNite/ChairColor.png');
-    this.load.image('OrderTicket', './assets/orderTicket.jpg');
-    this.load.image('TicketHolder', './assets/orderticketholder.jpg');
-    this.load.image('cleanSink', './assets/cleanSink.jpg');
-    this.load.image('Meal', './assets/meal.png');
-    this.load.image('dirtyDishes', './assets/dirtyDishes.png');
-    this.load.image('Heart', './assets/DineAtNite/heart.svg');
+    this.load.baseURL = 'assets/DineAtNite/';
+    this.load.image('background', 'bg.jpg');
+    // this.load.spritesheet('player', './dude.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.image('player', 'Sparx.png');
+    this.load.image('IaniteBase', 'IaniteBase.png');
+    this.load.image('IaniteColor', 'IaniteColor.png');
+    this.load.image('table', 'table.png');
+    this.load.image('ChairBase', 'ChairBase.png');
+    this.load.image('ChairColor', 'ChairColor.png');
+    this.load.image('OrderTicket', 'orderTicket.jpg');
+    this.load.image('TicketHolder', 'orderticketholder.jpg');
+    this.load.image('cleanSink', 'cleanSink.jpg');
+    this.load.image('Meal', 'meal.png');
+    this.load.image('dirtyDishes', 'dirtyDishes.png');
+    this.load.image('Heart', 'heart.svg');
   }
 
   create() {

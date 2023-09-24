@@ -29,7 +29,6 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     this.add(this.customers);
 
     for (let i = 0; i < 5; i++) {
-      console.log('in for loop', x, y);
       const heart = this.scene.add.image(-30, -40 + i * 20, 'Heart');
       heart.setScale(0.3);
       heart.setTint('0xff0000');
@@ -53,7 +52,6 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         }
       });
       if (topMostChild) {
-        console.log('Clicked child: ' + topMostChild.name + ' ' + topMostChild.color);
         this.draggingCustomer = topMostChild;
       }
     });

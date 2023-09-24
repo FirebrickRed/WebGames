@@ -27,20 +27,18 @@ function loadSubPage(subPageId) {
   document.getElementById('gameName').textContent = gameToLoad.name;
 }
 
-if(homePage) {
-  const gameList = document.getElementById('gameList');
+const gameList = document.getElementById('gameList');
 
-  games.forEach(game => {
-    const listItem = document.createElement('li');
-    const link = document.createElement('a');
+games.forEach(game => {
+  const listItem = document.createElement('li');
+  const link = document.createElement('a');
 
-    link.textContent = game.name;
-    link.href = `#gamePage/${game.url}`;
+  link.textContent = game.name;
+  link.href = `#gamePage/${game.url}`;
 
-    listItem.appendChild(link);
-    gameList.appendChild(listItem);
-  });
-}
+  listItem.appendChild(link);
+  gameList.appendChild(listItem);
+});
 
 window.addEventListener('hashchange', () => {
   const hash = window.location.hash.slice(1);
