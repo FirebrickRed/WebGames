@@ -75,7 +75,6 @@ export class OrderTicket extends Phaser.GameObjects.Image {
     this.name = 'OrderTicket';
     this.tableNumber = tableNumber;
     this.setScale(0.25);
-    this.setInteractive();
     scene.children.add(this);
     scene.physics.add.existing(this);
     this.body.setAllowGravity(false);
@@ -118,6 +117,7 @@ export class Meal extends Phaser.GameObjects.Image {
 
   setDirtyDishes() {
     this.setTexture('dirtyDishes');
+    this.setInteractive(false);
     this.isDirty = true;
   }
 

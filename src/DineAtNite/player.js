@@ -41,16 +41,15 @@ class Player extends Phaser.GameObjects.Sprite {
     });
 
     this.scene.events.on('takeTicketFromTable', orderTicket => {
+      let score = 0;
       if(!this.leftHand) {
         this.leftHand = orderTicket;
-        this.finishedTask();
-        return true;
+        score = 20;
       } else if(!this.rightHand) {
         this.rightHand = orderTicket;
-        this.finishedTask();
-        return true;
+        score = 20;
       }
-      this.finishedTask();
+      this.finishedTask(score);
     });
 
     this.scene.events.on('ticketHolderTakesTicket', () => {
@@ -77,12 +76,8 @@ class Player extends Phaser.GameObjects.Sprite {
     this.scene.events.on('takeDirtyDishesFromTable', dirtyDishes => {
       if(!this.leftHand) {
         this.leftHand = dirtyDishes;
-        this.finishedTask();
-        return true;
       } else if(!this.rightHand) {
         this.rightHand = dirtyDishes;
-        this.finishedTask();
-        return true;
       }
       this.finishedTask();
     });
@@ -114,6 +109,7 @@ class Player extends Phaser.GameObjects.Sprite {
 
   finishedTask() {
     this.currentTask = undefined;
+    console.log('in finished task');
   }
 
   getTasks() {
