@@ -7,6 +7,7 @@ class Booth extends Phaser.GameObjects.Container {
     this.name = 'booth';
     this.isOccupied = false;
     this.tableNumber = tableNumber;
+    this.customerToDestroy;
 
     this.table = new Table(scene, 0, 0);
     this.chairs = [new Chair(scene, -80, 0, true, 0), new Chair(scene, 80, 0, false, 1)];
@@ -30,9 +31,11 @@ class Booth extends Phaser.GameObjects.Container {
     this.isOccupied = false;
   }
 
-  finishedEating(meal) {
+  finishedEating(meal, customers) {
+    this.checkReady = true;
     meal.setDirtyDishes();
     this.dirtyDishes = meal;
+    this.customerToDestroy = customers;
   }
 }
 
@@ -57,6 +60,11 @@ class Table extends Phaser.GameObjects.Image {
             this.parentContainer.orderTaken();
           }
         }
+      } else if(this.parentContainer.checkReady) {
+        task.emit = () => {
+          this.scene.events.emit('bringCheck', this.parentContainer.customerToDestroy);
+        }
+        this.parentContainer.checkReady = false;
       } else if(this.parentContainer.dirtyDishes) {
         task.emit = () => {
           let isDishesTaken = this.scene.events.emit('takeDirtyDishesFromTable', this.parentContainer.dirtyDishes);
@@ -64,7 +72,7 @@ class Table extends Phaser.GameObjects.Image {
             this.parentContainer.dishesTaken();
           }
         }
-      }
+      } 
 
       this.scene.events.emit('addTask', task);
     });

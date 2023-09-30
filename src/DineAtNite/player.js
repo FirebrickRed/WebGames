@@ -21,35 +21,38 @@ class Player extends Phaser.GameObjects.Sprite {
     });
 
     this.scene.events.on('walkToBooth', booth => {
+      let pointsToAdd = 0;
       if(this.leftHand && this.leftHand.name === 'Meal' && !this.leftHand.isDirty && this.leftHand.tableNumber === booth.tableNumber ) {
         this.leftHand = this.leftHand.droppedOff(booth.x, booth.y);
+        pointsToAdd = 100;
       }
       if(this.rightHand && this.rightHand.name === 'Meal' && this.rightHand.tableNumber === booth.tableNumber) {
         this.rightHand = this.rightHand.droppedOff(booth.x, booth.y);
+        pointsToAdd = 100;
       }
-      this.finishedTask();
+      this.finishedTask(pointsToAdd);
     });
 
     this.scene.events.on('walkToSink', () => {
+      let pointsToAdd = 0;
       if(this.leftHand && this.leftHand.name === 'Meal' && this.leftHand.isDirty) {
         this.leftHand = this.leftHand.cleanDish();
+        pointsToAdd = 20;
       }
       if(this.rightHand && this.rightHand.name === 'Meal' && this.rightHand.isDirty) {
         this.rightHand = this.rightHand.cleanDish();
+        pointsToAdd = 20;
       }
-      this.finishedTask();
+      this.finishedTask(pointsToAdd);
     });
 
     this.scene.events.on('takeTicketFromTable', orderTicket => {
-      let score = 0;
       if(!this.leftHand) {
         this.leftHand = orderTicket;
-        score = 20;
       } else if(!this.rightHand) {
         this.rightHand = orderTicket;
-        score = 20;
       }
-      this.finishedTask(score);
+      this.finishedTask(50);
     });
 
     this.scene.events.on('ticketHolderTakesTicket', () => {
@@ -81,6 +84,13 @@ class Player extends Phaser.GameObjects.Sprite {
       }
       this.finishedTask();
     });
+
+    this.scene.events.on('bringCheck', customerToDestroy => {
+      this.finishedTask(100);
+      customerToDestroy.destroy();
+      // this.scene.events.emit('checkTaken');
+
+    });
   }
 
   preUpdate(time, delta) {
@@ -107,9 +117,11 @@ class Player extends Phaser.GameObjects.Sprite {
     }
   }
 
-  finishedTask() {
+  finishedTask(pointsToAdd) {
     this.currentTask = undefined;
-    console.log('in finished task');
+    if(pointsToAdd > 0) {
+      this.scene.updateScore(pointsToAdd);
+    }
   }
 
   getTasks() {

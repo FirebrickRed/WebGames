@@ -16,6 +16,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     this.patience = 15000;
     this.isWaiting = true;
     this.hearts = [];
+    this.checkReady = false;
     
     let totalWidth = 0;
     // Render all customers and put them in a variable array
@@ -29,7 +30,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     this.add(this.customers);
 
     for (let i = 0; i < 5; i++) {
-      const heart = this.scene.add.image(-30, -40 + i * 20, 'Heart');
+      const heart = this.scene.add.image(-30, -30 + i * 15, 'Heart');
       heart.setScale(0.3);
       heart.setTint('0xff0000');
       this.hearts.push(heart);
@@ -65,6 +66,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
       if(!this.isSeated) {
         this.setPosition(this.originalPointX, this.originalPointY);
         this.customers.forEach(customer => customer.resetPosition());
+        this.shiftHeartsVertically();
       }
     });
     this.on('dragover', (pointer, target) => {
@@ -80,10 +82,13 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         this.customers[currentCustomerIndex].chair = chair;
         this.customers[currentCustomerIndex].setPosition(chair.x, chair.y);
       }
+
+      this.shiftHeartsHorizontally(target.parentContainer);
     });
     this.on('dragleave', () => {
       this.isOverChair = false;
       this.customers.forEach(customer => customer.resetPosition());
+      this.shiftHeartsVertically();
     });
     this.on('drop', (pointer, target) => {
       if(target.getIsOccupied()) {
@@ -99,6 +104,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         this.disableInteractive();
         this.scene.updateScore(20 * this.customers.length);
         this.scene.moveUpLine();
+        this.shiftHeartsHorizontally(this.booth);
         this.scene.time.delayedCall(this.speed, () => {
           this.booth.readyToOrder();
           this.isWaiting = true;
@@ -111,8 +117,8 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         if(this.booth && this.booth.tableNumber === meal.tableNumber) {
           this.isWaiting = false;
           this.scene.time.delayedCall(this.speed, () => {
-            this.booth.finishedEating(meal);
-            this.destroy();
+            this.booth.finishedEating(meal, this);
+            this.checkReady = true;
           });
         }
       }
@@ -121,6 +127,24 @@ class CustomerGroup extends Phaser.GameObjects.Container {
 
   setY(y) {
     this.setPosition(this.x, y);
+    this.originalPointY = y;
+  }
+
+  shiftHeartsHorizontally(booth) {
+    this.hearts.forEach((heart, index) => {
+      heart.setPosition((booth.table.width * -1 + booth.chairs[0].width *2) + index * (booth.table.width / 6), this.height / 2);
+    });
+  }
+
+  shiftHeartsVertically() {
+    this.hearts.forEach((heart, index) => {
+      heart.setPosition(-30, -30 + index * 15);
+    });
+  }
+
+  destroyCustomer() {
+    this.customers.forEach(customer => customer.destroy());
+    this.destroy();
   }
 
   update(time, delta) {

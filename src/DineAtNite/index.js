@@ -93,7 +93,6 @@ class GameScene extends Phaser.Scene {
 
   updateScore(points) {
     this.score += points;
-    console.log('Score: ', this.score);
     this.scoreText.setText('Score: ' + this.score);
   }
 
