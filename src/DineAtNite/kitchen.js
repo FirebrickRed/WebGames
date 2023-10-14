@@ -74,10 +74,10 @@ export class OrderTicket extends Phaser.GameObjects.Image {
     super(scene, x, y, 'OrderTicket');
     this.name = 'OrderTicket';
     this.tableNumber = tableNumber;
-    this.setScale(0.25);
-    scene.children.add(this);
-    scene.physics.add.existing(this);
-    this.body.setAllowGravity(false);
+  }
+  
+  addToScene() {
+    this.scene.children.add(this);
   }
 
   droppedOff() {
@@ -87,15 +87,13 @@ export class OrderTicket extends Phaser.GameObjects.Image {
   }
 }
 
-export class Meal extends Phaser.GameObjects.Image {
+export class Meal extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y, tableNumber) {
-    super(scene, x, y, 'Meal');
+    super(scene, x, y, 'ServingTray');
     this.name = 'Meal';
     this.tableNumber = tableNumber;
     this.setInteractive();
     scene.children.add(this);
-    scene.physics.add.existing(this);
-    this.body.setAllowGravity(false);
     this.isPickedUp = false;
     this.isDirty = false;
 
@@ -116,14 +114,16 @@ export class Meal extends Phaser.GameObjects.Image {
   }
 
   setDirtyDishes() {
-    this.setTexture('dirtyDishes');
-    this.setInteractive(false);
+    // this.setTexture('dirtyDishes');
+    // this.setInteractive(false);  
     this.isDirty = true;
   }
 
   droppedOff(newX, newY) {
     this.x = newX;
     this.y = newY;
+    this.setTexture('DeliveredFood');
+    // this.scene.anims.play('FoodToEat');
     this.scene.events.emit('startEating', this);
     return null;
   }

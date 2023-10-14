@@ -78,9 +78,9 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         const currentCustomerIndex = (this.draggingCustomer.number + i) % this.customers.length;
         const currentChairIndex = (target.number + i) % target.parentContainer.chairs.length;
         const chair = target.parentContainer.chairs[currentChairIndex];
-        this.customers[currentCustomerIndex].flipX = !chair.isLeft;
+        this.customers[i].flipCustomer(!chair.isLeft);
         this.customers[currentCustomerIndex].chair = chair;
-        this.customers[currentCustomerIndex].setPosition(chair.x, chair.y);
+        this.customers[currentCustomerIndex].setPosition(chair.x, chair.y-15);
       }
 
       this.shiftHeartsHorizontally(target.parentContainer);
@@ -100,7 +100,10 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         this.isSeated = true;
         this.setPosition(this.booth.x, this.booth.y);
         this.booth.setBoothOccupied(true);
-        this.customers.forEach(customer => customer.chair.setColor(customer.color));
+        this.customers.forEach(customer => {
+          customer.chair.setColor(customer.color);
+          customer.playCustomerAnimation('Menu');
+        });
         this.disableInteractive();
         this.scene.updateScore(20 * this.customers.length);
         this.scene.moveUpLine();
@@ -108,6 +111,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         this.scene.time.delayedCall(this.speed, () => {
           this.booth.readyToOrder();
           this.isWaiting = true;
+          this.customers.forEach(customer => customer.playCustomerAnimation('ReadyToOrder'));
         });
       }
     });
@@ -116,12 +120,19 @@ class CustomerGroup extends Phaser.GameObjects.Container {
       if(this.scene) {
         if(this.booth && this.booth.tableNumber === meal.tableNumber) {
           this.isWaiting = false;
+          this.customers.forEach(customer => customer.playCustomerAnimation('Eat'));
           this.scene.time.delayedCall(this.speed, () => {
             this.booth.finishedEating(meal, this);
             this.checkReady = true;
+            this.customers.forEach(customer => customer.playCustomerAnimation('ReadyToOrder'));
           });
         }
       }
+    });
+
+    this.scene.events.on('orderTakenStartAnimation', () => {
+      // causes every customer on screen to sitWait
+      this.customers.forEach(customer => customer.playCustomerAnimation('SitWait'));
     });
   }
 
@@ -177,11 +188,16 @@ class Customer extends Phaser.GameObjects.Container {
     this.color;
     this.chair;
 
-    this.customerBase = scene.add.image(0, 0, 'IaniteBase').setOrigin(0.5);
-    this.customerColor = scene.add.image(0, 0, 'IaniteColor').setOrigin(0.5);
+    this.customerBase = scene.add.sprite(0, 0, 'IaniteBase').setOrigin(0.5);
+    this.customerColor = scene.add.sprite(0, 0, 'IaniteColor').setOrigin(0.5);
+
+    // this.customerBase = scene.add.image(0, 0, 'IaniteBase').setOrigin(0.5);
+    // this.customerColor = scene.add.image(0, 0, 'IaniteColor').setOrigin(0.5);
     
-    this.setSize(this.customerBase.width, this.customerBase.height);
+    // this.setSize(this.customerBase.width, this.customerBase.height);
+    this.setSize(40, 100);
     this.add([this.customerBase, this.customerColor]);
+    this.playCustomerAnimation('Wait');
   }
 
   setColor() {
@@ -194,6 +210,16 @@ class Customer extends Phaser.GameObjects.Container {
 
   resetPosition() {
     this.setPosition(this.originalPosition.x, this.originalPosition.y);
+  }
+
+  playCustomerAnimation(animationToPlay) {
+    this.customerBase.play(`base${animationToPlay}`);
+    this.customerColor.play(`color${animationToPlay}`);
+  }
+
+  flipCustomer(flipStatus) {
+    this.customerBase.setFlip(flipStatus, false);
+    this.customerColor.setFlip(flipStatus, false);
   }
 }
 

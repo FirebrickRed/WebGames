@@ -7,7 +7,7 @@ const homePage = document.getElementById('homePage');
 let currentGamePlaying;
 
 const games = [
-  { name: 'Dine at Nite', url: 'dineatnite', createGame: createDineAtNiteGame, description: 'Diner dash inspired game' }
+  { name: 'Dine at Nite', url: 'dineatnite', createGame: createDineAtNiteGame, description: 'Diner dash inspired game', howToPlay: 'Place customers at seats, take their orders, bring customers their food, and the bring them the check.', knownBugs: ['Game breaks after game over screen', 'dirty dishes prevents clicking on table', 'Clicking on cusomters doesn\'t work on the right most customer all the time', 'When picking up ticket every customer on screen goes into sitWait animation'] }
 ];
 
 function showPage(pageId) {
@@ -25,6 +25,8 @@ function loadSubPage(subPageId) {
   let gameToLoad = games.find(game => game.url === subPageId);
   currentGamePlaying = gameToLoad.createGame();
   document.getElementById('gameName').textContent = gameToLoad.name;
+  document.getElementById('gameHowToPlay').textContent = gameToLoad.howToPlay;
+  document.getElementById('gameBugs').appendChild(arrayToUl(gameToLoad.knownBugs));
 }
 
 const gameList = document.getElementById('gameList');
@@ -64,6 +66,17 @@ if(hash.startsWith('gamePage/')) {
   loadSubPage(subPageId);
 } else {
   showPage(hash || 'homePage');
+}
+
+function arrayToUl(array) {
+  let ul = document.createElement('ul');
+  array.forEach(element => {
+    const li = document.createElement('li');
+    li.textContent = element
+    // li.appendChild(document.createTextNode(element))
+    ul.appendChild(li);
+  });
+  return ul;
 }
 
 /*

@@ -52,6 +52,7 @@ class Player extends Phaser.GameObjects.Sprite {
       } else if(!this.rightHand) {
         this.rightHand = orderTicket;
       }
+      orderTicket.addToScene();
       this.finishedTask(50);
     });
 
@@ -88,8 +89,6 @@ class Player extends Phaser.GameObjects.Sprite {
     this.scene.events.on('bringCheck', customerToDestroy => {
       this.finishedTask(100);
       customerToDestroy.destroy();
-      // this.scene.events.emit('checkTaken');
-
     });
   }
 

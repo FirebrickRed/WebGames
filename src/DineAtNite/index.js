@@ -52,22 +52,104 @@ class GameScene extends Phaser.Scene {
   preload() {
     this.load.baseURL = 'assets/DineAtNite/';
     this.load.image('background', 'bg.jpg');
-    // this.load.spritesheet('player', './dude.png', { frameWidth: 32, frameHeight: 48 });
     this.load.image('player', 'Sparx.png');
-    this.load.image('IaniteBase', 'IaniteBase.png');
-    this.load.image('IaniteColor', 'IaniteColor.png');
+    this.load.spritesheet('IaniteBase', 'IaniteBase.png', { frameWidth: 40, frameHeight: 100 });
+    this.load.spritesheet('IaniteColor', 'IaniteColor.png', { frameWidth: 40, frameHeight: 100 });
     this.load.image('table', 'table.png');
     this.load.image('ChairBase', 'ChairBase.png');
     this.load.image('ChairColor', 'ChairColor.png');
     this.load.image('OrderTicket', 'orderTicket.jpg');
+    this.load.image('Heart', 'heart.svg');
+    this.load.spritesheet('DeliveredFood', 'DeliveredFood.png', { frameWidth: 15, frameHeight: 15 });
+    this.load.image('ServingTray', 'Plater.png');
+
     this.load.image('TicketHolder', 'orderticketholder.jpg');
     this.load.image('cleanSink', 'cleanSink.jpg');
     this.load.image('Meal', 'meal.png');
     this.load.image('dirtyDishes', 'dirtyDishes.png');
-    this.load.image('Heart', 'heart.svg');
   }
 
   create() {
+    // Animations
+    //#region 
+    this.anims.create({
+      key: 'baseWait',
+      frames: this.anims.generateFrameNumbers('IaniteBase', { start: 1, end: 2 }),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: 'baseMenu',
+      frames: this.anims.generateFrameNumbers('IaniteBase', { start: 5, end: 5 }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    
+    this.anims.create({
+      key: 'baseReadyToOrder',
+      frames: this.anims.generateFrameNumbers('IaniteBase', { start: 6, end: 8 }),
+      frameRate: 5,
+      repeat: -1,
+    });
+    
+    this.anims.create({
+      key: 'baseSitWait',
+      frames: this.anims.generateFrameNumbers('IaniteBase', { start: 9, end: 9 }),
+      frameRate: 5,
+      repeat: -1,
+    });
+    
+    this.anims.create({
+      key: 'baseEat',
+      frames: this.anims.generateFrameNumbers('IaniteBase', { start: 10, end: 13 }),
+      frameRate: 5,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: 'colorWait',
+      frames: this.anims.generateFrameNumbers('IaniteColor', { start: 1, end: 2 }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    
+    this.anims.create({
+      key: 'colorMenu',
+      frames: this.anims.generateFrameNumbers('IaniteColor', { start: 5, end: 5 }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    
+    this.anims.create({
+      key: 'colorReadyToOrder',
+      frames: this.anims.generateFrameNumbers('IaniteColor', { start: 6, end: 8 }),
+      frameRate: 5,
+      repeat: -1,
+    });
+    
+    this.anims.create({
+      key: 'colorSitWait',
+      frames: this.anims.generateFrameNumbers('IaniteColor', { start: 9, end: 9 }),
+      frameRate: 5,
+      repeat: -1,
+    });
+    
+    this.anims.create({
+      key: 'colorEat',
+      frames: this.anims.generateFrameNumbers('IaniteColor', { start: 10, end: 13 }),
+      frameRate: 5,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: 'FoodToEat',
+      frames: this.anims.generateFrameNumbers('DeliveredFood', { start: 0, end: 3 }),
+      frameRate: 5,
+      repeat: 1
+    });
+    //#endregion
+
     this.add.image(0, 0, 'background').setOrigin(0);
     this.input.mouse.disableContextMenu();
 
@@ -179,9 +261,6 @@ To Do:
   - Customers
     - Frustration animation
     - Happy animation
-    - Eating animation
-    - menu animation
-    - ready to order animation
     - Leaving animation
 
 - Customers

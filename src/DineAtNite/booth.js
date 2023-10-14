@@ -24,6 +24,7 @@ class Booth extends Phaser.GameObjects.Container {
 
   orderTaken() {
     this.orderTicket = null;
+    this.scene.events.emit('orderTakenStartAnimation');
   }
 
   dishesTaken() {
