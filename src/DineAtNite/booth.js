@@ -1,5 +1,5 @@
 import { OrderTicket } from "./kitchen";
-import { colors } from './constants';
+import { GameConfig } from './config';
 
 class Booth extends Phaser.GameObjects.Container {
   constructor(scene, x, y, tableNumber) {
@@ -98,7 +98,7 @@ class Chair extends Phaser.GameObjects.Container {
   }
 
   setColor(color) {
-    this.chairColor.setTint(colors[color]);
+    this.chairColor.setTint(GameConfig.CUSTOMER_COLOR[color]);
   }
 
   getIsOccupied() {

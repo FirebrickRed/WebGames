@@ -1,0 +1,24 @@
+export const GameConfig = {
+  PLAYER: { 
+    INITIAL_HEALTH: 100,
+    SPEED: 200,
+    GRACE_PERIOD_DURATION: 2000
+  },
+  MELEE_ENEMY: {
+    INITIAL_HEALTH: 50,
+    DAMAGE: 10,
+    ATTACK_RANGE: 50,
+    SPAWN_INTERVAL: 3000,
+    MOVE_SPEED: 100
+  },
+  RANGED_ENEMY: {
+    INITIAL_HEALTH: 30,
+    DAMAGE: 15,
+    ATTACK_RANGE: 100,
+    SPAWN_INTERVAL: 5000
+  },
+  BULLET: {
+    DAMAGE: 10,
+    SPEED: 500,
+  }
+};

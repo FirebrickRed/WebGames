@@ -1,4 +1,4 @@
-import { colors } from './constants';
+import { GameConfig, colors } from './config';
 
 class CustomerGroup extends Phaser.GameObjects.Container {
   constructor(scene, x, y, numberOfCustomers) {
@@ -201,11 +201,11 @@ class Customer extends Phaser.GameObjects.Container {
   }
 
   setColor() {
-    const colorKey = Object.keys(colors);
+    const colorKey = Object.keys(GameConfig.CUSTOMER_COLOR);
     const randomIndex = Math.floor(Math.random() * colorKey.length);
     const randomColor = colorKey[randomIndex];
     this.color = randomColor;
-    this.customerColor.setTint(colors[this.color]);
+    this.customerColor.setTint(GameConfig.CUSTOMER_COLOR[this.color]);
   }
 
   resetPosition() {

@@ -2,6 +2,7 @@ import CustomerGroup from "./customer";
 import Booth from "./booth";
 import Player from "./player";
 import { Kitchen } from "./kitchen";
+import { GameConfig } from "./config";
 
 
 
@@ -42,10 +43,10 @@ class GameScene extends Phaser.Scene {
     this.score = 0;
     this.scoreText;
     this.customerGroups = [];
-    this.nextCustomerTime = Phaser.Math.Between(15000, 30000);
-    this.initialCustomerX = 50;
-    this.initialCustomerY = 525;
-    this.spacingY = 100;
+    this.nextCustomerTime = Phaser.Math.Between(GameConfig.NEXT_CUSTOMER_TIME.MIN, GameConfig.NEXT_CUSTOMER_TIME.MAX);
+    this.initialCustomerX = GameConfig.INITIAL_CUSTOMER.X;
+    this.initialCustomerY = GameConfig.INITIAL_CUSTOMER.Y;
+    this.spacingY = GameConfig.SPACING_Y;
     this.currentY = this.initialCustomerY;
   }
 
@@ -195,7 +196,7 @@ class GameScene extends Phaser.Scene {
       this.add.existing(customerGroup);
 
       this.currentY -= this.spacingY;
-      this.nextCustomerTime = time + Phaser.Math.Between(15000, 25000);
+      this.nextCustomerTime = time + Phaser.Math.Between(GameConfig.NEXT_CUSTOMER_TIME.MIN, GameConfig.NEXT_CUSTOMER_TIME.MAX);
     }
   }
 
@@ -211,7 +212,7 @@ class GameScene extends Phaser.Scene {
 }
 
 export function createDineAtNiteGame() {
-  const gameConfig = {
+  return new Phaser.Game({
     title: 'DineAtNite',
     parent: 'gameCanvas',
     type: Phaser.AUTO,
@@ -228,9 +229,7 @@ export function createDineAtNiteGame() {
       }
     },
     scene: [MenuScene, GameScene, GameOverScene]
-  };
-
-  return new Phaser.Game(gameConfig);
+  });
 }
 
 

@@ -2,12 +2,14 @@ import Phaser from 'phaser';
 // import './helloworld';
 // import './tutorial';
 import { createDineAtNiteGame } from './DineAtNite/index';
+import { createTopDownShooter } from './TopdownShooter';
 
 const homePage = document.getElementById('homePage');
 let currentGamePlaying;
 
 const games = [
-  { name: 'Dine at Nite', url: 'dineatnite', createGame: createDineAtNiteGame, description: 'Diner dash inspired game', howToPlay: 'Place customers at seats, take their orders, bring customers their food, and the bring them the check.', knownBugs: ['Game breaks after game over screen', 'dirty dishes prevents clicking on table', 'Clicking on cusomters doesn\'t work on the right most customer all the time', 'When picking up ticket every customer on screen goes into sitWait animation'] }
+  { name: 'Dine at Nite', url: 'dineatnite', createGame: createDineAtNiteGame, description: 'Diner dash inspired game', howToPlay: 'Place customers at seats, take their orders, bring customers their food, and the bring them the check.', knownBugs: ['Game breaks after game over screen', 'dirty dishes prevents clicking on table', 'Clicking on cusomters doesn\'t work on the right most customer all the time', 'When picking up ticket every customer on screen goes into sitWait animation'] },
+  { name: 'Topdown Shooter', url: 'topdownshooter', createGame: createTopDownShooter, description: 'top down shooter, work in progress', howToPlay: 'click things?', knownBugs: [] }
 ];
 
 function showPage(pageId) {
