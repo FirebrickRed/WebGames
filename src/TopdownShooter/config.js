@@ -20,5 +20,6 @@ export const GameConfig = {
   BULLET: {
     DAMAGE: 10,
     SPEED: 500,
+    COOLDOWN: 500
   }
 };

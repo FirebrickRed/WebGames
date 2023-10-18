@@ -14,7 +14,7 @@ class GameOverScene extends Phaser.Scene {
     this.restartButton = this.add.text(300, 350, 'Return to Menu', { fontSize: '24px', fill: '#fff' });
     this.restartButton.setInteractive();
     this.restartButton.on('pointerdown', () => {
-      this.scene.start('MenuScene');
+      this.scene.start('GameScene');
     });
   }
 }
@@ -24,34 +24,17 @@ class GameScene extends Phaser.Scene {
     super({ key: 'GameScene' });
     this.player;
     this.background;
-    this.bullets;
     this.enemies;
     this.isGameOver = false;
     this.cursors;
   }
 
   preload() {
-    // this.load.baseURL = 'assets/TopDownShooter/';
-    // this.load.image('background', 'MererIslad.png');
-    this.load.image('background', 'assets/TopDownShooter/MererIslad.png');
-
-    const graphics = this.add.graphics();
-    //player
-    graphics.fillStyle(0x0000FF, 1);
-    graphics.fillCircle(25, 25, 25);
-    graphics.generateTexture('playerCircle', 50, 50);
-
-    //enemies
-    graphics.clear();
-    graphics.fillStyle(0xFF0000, 1);
-    graphics.fillCircle(20, 20, 20);
-    graphics.generateTexture('enemyCircle', 40, 40);
-
-    //bullet
-    graphics.clear();
-    graphics.fillStyle(0xffff00, 1);
-    graphics.fillCircle(0, 0, 10);
-    graphics.generateTexture('bulletCircle', 20, 20);
+    this.load.baseURL = 'assets/TopDownShooter/';
+    this.load.image('background', 'MererIslad.png');
+    this.load.image('playerCircle', 'Player.svg');
+    this.load.image('enemyCircle', 'Enemy.svg');
+    this.load.image('bulletCircle', 'Bullet.svg');
   }
 
   create() {
@@ -79,7 +62,6 @@ class GameScene extends Phaser.Scene {
       right: Phaser.Input.Keyboard.KeyCodes.D
     });
 
-    this.bullets = this.physics.add.group();
     this.enemies = this.physics.add.group();
 
     this.time.addEvent({
@@ -104,27 +86,24 @@ class GameScene extends Phaser.Scene {
 
     this.input.on('pointerdown', pointer => {
       if(!this.isGameOver) {
-        this.shootBullet(this.player.x, this.player.y, pointer.x, pointer.y);
+        this.player.handleShooting(pointer.x, pointer.y);
       }
     });
 
     this.input.setHitArea(this.background);
   }
 
-  update() {
+  update(time, delta) {
     if(this.isGameOver) { return; }
-
-    this.bullets.children.iterate(bullet => {
-      bullet.rotation = Phaser.Math.Angle.Between(bullet.x, bullet.y, bullet.destinationX, bullet.destinationY);
-    });
 
     this.enemies.children.iterate(enemy => {
       enemy.update();
     })
 
     this.player.update(this.cursors, this.wasdCursors);
+    this.player.weapon.update(delta);
 
-    this.physics.overlap(this.bullets, this.enemies, (bullet, enemy) => {
+    this.physics.overlap(this.player.weapon.bullets, this.enemies, (bullet, enemy) => {
       bullet.destroy();
       enemy.takeDamage(bullet.damage);
 
@@ -133,7 +112,7 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    this.physics.overlap(this.player, this.enemies, (player, enemy) => {
+    this.physics.collide(this.player, this.enemies, (player, enemy) => {
       if(this.isGameOver) return;
 
       if(!player.gracePeriod) {
@@ -146,36 +125,6 @@ class GameScene extends Phaser.Scene {
         // }
       }
     }, null, this);
-  }
-
-  shootBullet(x, y, targetX, targetY) {
-    if(this.isGameOver) return;
-    console.log('1', {x, y, targetX, targetY})
-    const bullet = this.physics.add.sprite(x, y, 'bulletCircle');
-    bullet.damage = GameConfig.BULLET.DAMAGE;
-    console.log('2', bullet);
-    
-    const angle = Phaser.Math.Angle.Between(x, y, targetX, targetY);
-    this.physics.moveTo(bullet, targetX, targetY, GameConfig.BULLET.SPEED);
-    bullet.rotation = angle;
-    console.log('3', {angle, bullet});
-
-    // if(!this.bullets) {
-    //   this.bullets = this.physics.add.group();
-    // }
-
-    // const bullet = this.add.graphics();
-    // bullet.fillStyle(0xffff00, 1);
-    // bullet.fillCircle(0, 0, 5);
-    // bullet.setPosition(x, y);
-    // bullet.damage = GameConfig.BULLET.DAMAGE;
-
-    // const angle = Phaser.Math.Angle.Between(x, y, targetX, targetY);
-    // this.physics.velocityFromRotation(angle, GameConfig.BULLET.SPEED, bullet.body.velocity);
-    // bullet.rotation = angle;
-
-    this.bullets.add(bullet);
-    console.log('4', this.bullets);
   }
 
   gameOver() {

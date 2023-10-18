@@ -1,4 +1,5 @@
 import { GameConfig } from "./config";
+import { Weapon } from "./weapons";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene) {
@@ -6,12 +7,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.setCollideWorldBounds(true);
+
     this.health = GameConfig.PLAYER.INITIAL_HEALTH;
     this.playerSpeed = GameConfig.PLAYER.SPEED;
     this.playerDirection = new Phaser.Math.Vector2(0, 0);
+
     this.gracePeriod = false;
     this.gracePeriodDuration = GameConfig.PLAYER.GRACE_PERIOD_DURATION;
     this.gracePeriodTimer = null;
+
+    this.weapon = new Weapon(scene, this);
+  }
+
+  handleShooting(targetX, targetY) {
+    this.weapon.shoot(this.x, this.y, targetX, targetY);
   }
 
   takeDamage(damage) {
