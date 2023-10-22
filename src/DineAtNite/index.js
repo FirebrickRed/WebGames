@@ -42,6 +42,8 @@ class GameScene extends Phaser.Scene {
     super({ key: 'GameScene' });
     this.score = 0;
     this.scoreText;
+    this.money = 0;
+    this.moneyText;
     this.customerGroups = [];
     this.nextCustomerTime = Phaser.Math.Between(GameConfig.NEXT_CUSTOMER_TIME.MIN, GameConfig.NEXT_CUSTOMER_TIME.MAX);
     this.initialCustomerX = GameConfig.INITIAL_CUSTOMER.X;
@@ -61,7 +63,7 @@ class GameScene extends Phaser.Scene {
     this.load.image('ChairColor', 'ChairColor.png');
     this.load.image('OrderTicket', 'orderTicket.jpg');
     this.load.image('Heart', 'heart.svg');
-    this.load.spritesheet('DeliveredFood', 'DeliveredFood.png', { frameWidth: 15, frameHeight: 15 });
+    this.load.spritesheet('DeliveredFood', 'DeliveredFood.png', { frameWidth: 30, frameHeight: 30 });
     this.load.image('ServingTray', 'Plater.png');
 
     this.load.image('TicketHolder', 'orderticketholder.jpg');
@@ -73,88 +75,112 @@ class GameScene extends Phaser.Scene {
   create() {
     // Animations
     //#region 
-    this.anims.create({
-      key: 'baseWait',
-      frames: this.anims.generateFrameNumbers('IaniteBase', { start: 1, end: 2 }),
-      frameRate: 10,
-      repeat: -1,
-    });
+    if(!this.anims.exists('baseWait')) {
+      this.anims.create({
+        key: 'baseWait',
+        frames: this.anims.generateFrameNumbers('IaniteBase', { start: 1, end: 2 }),
+        frameRate: 10,
+        repeat: -1,
+      });
+    }
 
-    this.anims.create({
-      key: 'baseMenu',
-      frames: this.anims.generateFrameNumbers('IaniteBase', { start: 5, end: 5 }),
-      frameRate: 10,
-      repeat: -1,
-    });
+    if(!this.anims.exists('baseMenu')) {
+      this.anims.create({
+        key: 'baseMenu',
+        frames: this.anims.generateFrameNumbers('IaniteBase', { start: 5, end: 5 }),
+        frameRate: 10,
+        repeat: -1,
+      });
+    }
     
-    this.anims.create({
-      key: 'baseReadyToOrder',
-      frames: this.anims.generateFrameNumbers('IaniteBase', { start: 6, end: 8 }),
-      frameRate: 5,
-      repeat: -1,
-    });
+    if(!this.anims.exists('baseReadyToOrder')) {
+      this.anims.create({
+        key: 'baseReadyToOrder',
+        frames: this.anims.generateFrameNumbers('IaniteBase', { start: 6, end: 8 }),
+        frameRate: 5,
+        repeat: -1,
+      });
+    }
     
-    this.anims.create({
-      key: 'baseSitWait',
-      frames: this.anims.generateFrameNumbers('IaniteBase', { start: 9, end: 9 }),
-      frameRate: 5,
-      repeat: -1,
-    });
+    if(!this.anims.exists('baseSitWait')) {
+      this.anims.create({
+        key: 'baseSitWait',
+        frames: this.anims.generateFrameNumbers('IaniteBase', { start: 9, end: 9 }),
+        frameRate: 5,
+        repeat: -1,
+      });
+    }
     
-    this.anims.create({
-      key: 'baseEat',
-      frames: this.anims.generateFrameNumbers('IaniteBase', { start: 10, end: 13 }),
-      frameRate: 5,
-      repeat: -1,
-    });
+    if(!this.anims.exists('baseEat')) {
+      this.anims.create({
+        key: 'baseEat',
+        frames: this.anims.generateFrameNumbers('IaniteBase', { start: 10, end: 13 }),
+        frameRate: 5,
+        repeat: -1,
+      });
+    }
 
-    this.anims.create({
-      key: 'colorWait',
-      frames: this.anims.generateFrameNumbers('IaniteColor', { start: 1, end: 2 }),
-      frameRate: 10,
-      repeat: -1,
-    });
+    if(!this.anims.exists('colorWait')) {
+      this.anims.create({
+        key: 'colorWait',
+        frames: this.anims.generateFrameNumbers('IaniteColor', { start: 1, end: 2 }),
+        frameRate: 10,
+        repeat: -1,
+      });
+    }
     
-    this.anims.create({
-      key: 'colorMenu',
-      frames: this.anims.generateFrameNumbers('IaniteColor', { start: 5, end: 5 }),
-      frameRate: 10,
-      repeat: -1,
-    });
+    if(!this.anims.exists('colorMenu')) {
+      this.anims.create({
+        key: 'colorMenu',
+        frames: this.anims.generateFrameNumbers('IaniteColor', { start: 5, end: 5 }),
+        frameRate: 10,
+        repeat: -1,
+      });
+    }
     
-    this.anims.create({
-      key: 'colorReadyToOrder',
-      frames: this.anims.generateFrameNumbers('IaniteColor', { start: 6, end: 8 }),
-      frameRate: 5,
-      repeat: -1,
-    });
+    if(!this.anims.exists('colorReadyToOrder')) {
+      this.anims.create({
+        key: 'colorReadyToOrder',
+        frames: this.anims.generateFrameNumbers('IaniteColor', { start: 6, end: 8 }),
+        frameRate: 5,
+        repeat: -1,
+      });
+    }
     
-    this.anims.create({
-      key: 'colorSitWait',
-      frames: this.anims.generateFrameNumbers('IaniteColor', { start: 9, end: 9 }),
-      frameRate: 5,
-      repeat: -1,
-    });
+    if(!this.anims.exists('colorSitWait')) {
+      this.anims.create({
+        key: 'colorSitWait',
+        frames: this.anims.generateFrameNumbers('IaniteColor', { start: 9, end: 9 }),
+        frameRate: 5,
+        repeat: -1,
+      });
+    }
     
-    this.anims.create({
-      key: 'colorEat',
-      frames: this.anims.generateFrameNumbers('IaniteColor', { start: 10, end: 13 }),
-      frameRate: 5,
-      repeat: -1,
-    });
+    if(!this.anims.exists('colorEat')) {
+      this.anims.create({
+        key: 'colorEat',
+        frames: this.anims.generateFrameNumbers('IaniteColor', { start: 10, end: 13 }),
+        frameRate: 5,
+        repeat: -1,
+      });
+    }
 
-    this.anims.create({
-      key: 'FoodToEat',
-      frames: this.anims.generateFrameNumbers('DeliveredFood', { start: 0, end: 3 }),
-      frameRate: 5,
-      repeat: 1
-    });
+    if(!this.anims.exists('FoodToEat')) {
+      this.anims.create({
+        key: 'FoodToEat',
+        frames: this.anims.generateFrameNumbers('DeliveredFood', { start: 0, end: 3 }),
+        frameRate: 5,
+        repeat: 1
+      });
+    }
     //#endregion
 
     this.add.image(0, 0, 'background').setOrigin(0);
     this.input.mouse.disableContextMenu();
 
-    this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#fff' });
+    this.score = 0;
+    this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, { fontSize: '32px', fill: '#fff' });
+    this.moneyText = this.add.text(16, 45, '$0', { fontSize: '32px', fill: '#0f0' });
 
     let kitchen = new Kitchen(this, 400, 0);
     this.add.existing(kitchen);
@@ -162,10 +188,20 @@ class GameScene extends Phaser.Scene {
     let player = new Player(this, 150, 175);
     this.add.existing(player);
 
-    let booth1 = new Booth(this, 250, 400, 1);
-    let booth2 = new Booth(this, 550, 400, 2);
+    this.customerGroups = [];
+
+    let booth1 = new Booth(this, 900, 500, 1);
+    let booth2 = new Booth(this, 900, 300, 2);
+    let booth3 = new Booth(this, 600, 500, 3);
+    let booth4 = new Booth(this, 600, 300, 4);
+    let booth5 = new Booth(this, 300, 500, 5);
+    let booth6 = new Booth(this, 300, 300, 6);
     this.add.existing(booth1);
     this.add.existing(booth2);
+    this.add.existing(booth3);
+    this.add.existing(booth4);
+    this.add.existing(booth5);
+    this.add.existing(booth6);
 
     this.input.on('pointerdown', pointer => {
       if(pointer.rightButtonDown()) {
@@ -179,11 +215,12 @@ class GameScene extends Phaser.Scene {
     this.scoreText.setText('Score: ' + this.score);
   }
 
-  update(time, delta) {
-    this.customerGroups.forEach(customerGroup => {
-      customerGroup.update(time, delta);
-    });
+  updateMoney(moneyToAdd) {
+    this.money += moneyToAdd;
+    this.moneyText.setText(`$${this.money}`);
+  }
 
+  update(time, delta) {
     if (this.score < 0) {
       this.scene.start('GameOverScene');
     }
@@ -194,6 +231,10 @@ class GameScene extends Phaser.Scene {
       const customerGroup = new CustomerGroup(this, this.initialCustomerX, this.currentY, groupSize);
       this.customerGroups.push(customerGroup);
       this.add.existing(customerGroup);
+      this.customerGroups = this.customerGroups.filter(customerGroup => !customerGroup.isDestroyed);
+      this.customerGroups.forEach(customerGroup => {
+        customerGroup.update(time, delta, this);
+      });
 
       this.currentY -= this.spacingY;
       this.nextCustomerTime = time + Phaser.Math.Between(GameConfig.NEXT_CUSTOMER_TIME.MIN, GameConfig.NEXT_CUSTOMER_TIME.MAX);

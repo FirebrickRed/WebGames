@@ -13,28 +13,22 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.playerDirection = new Phaser.Math.Vector2(0, 0);
 
     this.gracePeriod = false;
-    this.gracePeriodDuration = GameConfig.PLAYER.GRACE_PERIOD_DURATION;
-    this.gracePeriodTimer = null;
+    this.graceDuration = GameConfig.PLAYER.GRACE_DURATION;
+    // this.gracePeriodTimer = null;
 
     this.weapon = new Weapon(scene, this);
-  }
-
-  handleShooting(targetX, targetY) {
-    this.weapon.shoot(this.x, this.y, targetX, targetY);
+    this.shooting = false;
   }
 
   takeDamage(damage) {
-    if(this.gracePeriod) {
-      this.gracePeriodTimer = this.scene.time.delayedCall(this.gracePeriodDuration, () => {
-        this.gracePeriod = false;
-        this.gracePeriodTimer = null;
-      });
-    } else {
+    if(!this.gracePeriod) {
       this.health -= damage;
-      this.gracePeriod = true;
+      console.log(this.health);
       if(this.health <= 0) {
         this.destroy();
       }
+    } else {
+      this.gracePeriod = true;
     }
   }
 
@@ -55,5 +49,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.playerDirection.normalize().scale(this.playerSpeed);
     this.setVelocity(this.playerDirection.x, this.playerDirection.y);
+
+    if(this.shooting) {
+      this.weapon.shoot(this.x, this.y, this.scene.input.activePointer.worldX, this.scene.input.activePointer.worldY);
+    }
+
+    if(this.gracePeriod) {
+      this.graceDuration  -= this.scene.time.deltaTime;
+      if(this.graceDuration <= 0) {
+        this.gracePeriod = false;
+        this.graceDuration = GameConfig.PLAYER.GRACE_DURATION;
+      }
+    }
   }
 }

@@ -88,6 +88,7 @@ class Player extends Phaser.GameObjects.Sprite {
 
     this.scene.events.on('bringCheck', customerToDestroy => {
       this.finishedTask(100);
+      this.scene.updateMoney(20);
       customerToDestroy.destroy();
     });
   }

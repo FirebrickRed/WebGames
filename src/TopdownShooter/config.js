@@ -2,7 +2,7 @@ export const GameConfig = {
   PLAYER: { 
     INITIAL_HEALTH: 100,
     SPEED: 200,
-    GRACE_PERIOD_DURATION: 2000
+    GRACE_DURATION: 2000
   },
   MELEE_ENEMY: {
     INITIAL_HEALTH: 50,

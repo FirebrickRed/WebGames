@@ -19,7 +19,6 @@ export class Weapon {
   // Function to shoot a bullet
   shoot(x, y, targetX, targetY) {
     if (this.fireCooldown <= 0) {
-        console.log({x, y, targetX, targetY});
       const bullet = this.bullets.create(x, y, 'bulletCircle');
       bullet.damage = this.bulletDamage;
 

@@ -1,12 +1,11 @@
-import { GameConfig, colors } from './config';
+import { GameConfig } from './config';
 
 class CustomerGroup extends Phaser.GameObjects.Container {
   constructor(scene, x, y, numberOfCustomers) {
     super(scene, x, y);
+    this.scene = scene;
     this.numberOfCustomers = numberOfCustomers;
-    this.customers = [];
-    this.originalPointX = x;
-    this.originalPointY = y;
+    this.isDestroyed = false;
     this.isSeated = false;
     this.isOverChair = false;
     this.booth = null;
@@ -17,42 +16,57 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     this.isWaiting = true;
     this.hearts = [];
     this.checkReady = false;
-    
+
+    this.customers = [];
+    this.originalPointX = x;
+    this.originalPointY = y;
+    this.initializeCustomers();
+    this.initializeHearts();
+
+    this.setSize(this.customers[0].width * this.customers.length, this.customers[0].height);
+
+    this.setInteractive({ draggable: true });
+
+    this.handlePointerEvents();
+
+    scene.add.existing(this);
+  }
+
+  initializeCustomers() {
     let totalWidth = 0;
-    // Render all customers and put them in a variable array
     for(let i = 0; i < this.numberOfCustomers; i++) {
-      // TODO have to adjust to accomidate for space between the characters
-      const customer = new Customer(scene, i*55, 0, `customer ${i}`, i);
-      totalWidth += customer.width;
+      const customer = new Customer(this.scene, i * 55, 0, `customer ${i}`, i);
       customer.setColor();
       this.customers.push(customer);
+      totalWidth += customer.width;
     }
     this.add(this.customers);
+    // this.setSize(totalWidth, this.customers[0].height);
+  }
 
-    for (let i = 0; i < 5; i++) {
+  initializeHearts() {
+    for(let i = 0; i < 5; i++) {
       const heart = this.scene.add.image(-30, -30 + i * 15, 'Heart');
       heart.setScale(0.3);
       heart.setTint('0xff0000');
       this.hearts.push(heart);
       this.add(heart);
     }
+  }
 
-    this.setSize(totalWidth, this.customers[0].height);
-    this.setInteractive({ draggable: true });
-
+  handlePointerEvents() {
     this.on('pointerdown', (pointer, localX, localY, event) => {
-      // Gets which customer is being dragged
       let topMostChild = null;
       let topMostDepth = -1;
-      this.list.forEach(child => {
-        if (child.getBounds().contains(pointer.x, pointer.y)) {
-          if (child.depth > topMostDepth) {
-            topMostChild = child;
-            topMostDepth = child.depth;
+      this.customers.forEach(customer => {
+        if(customer.getBounds().contains(pointer.x, pointer.y)) {
+          if(customer.depth > topMostDepth) {
+            topMostChild = customer;
+            topMostDepth = customer.depth;
           }
         }
       });
-      if (topMostChild) {
+      if(topMostChild) {
         this.draggingCustomer = topMostChild;
       }
     });
@@ -62,34 +76,38 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         this.setPosition(dragX, dragY);
       }
     });
-    this.on('dragend', ()=> {
+
+    this.on('dragend', () => {
       if(!this.isSeated) {
         this.setPosition(this.originalPointX, this.originalPointY);
         this.customers.forEach(customer => customer.resetPosition());
         this.shiftHeartsVertically();
       }
     });
+
     this.on('dragover', (pointer, target) => {
       this.isOverChair = true;
       const table = target.parentContainer;
       this.setPosition(table.x, table.y);
 
-      for (let i = 0; i < this.customers.length; i++) {
+      for(let i = 0; i < this.customers.length; i++) {
         const currentCustomerIndex = (this.draggingCustomer.number + i) % this.customers.length;
         const currentChairIndex = (target.number + i) % target.parentContainer.chairs.length;
         const chair = target.parentContainer.chairs[currentChairIndex];
         this.customers[i].flipCustomer(!chair.isLeft);
         this.customers[currentCustomerIndex].chair = chair;
-        this.customers[currentCustomerIndex].setPosition(chair.x, chair.y-15);
+        this.customers[currentCustomerIndex].setPosition(chair.x, chair.y - 15);
       }
 
       this.shiftHeartsHorizontally(target.parentContainer);
     });
+
     this.on('dragleave', () => {
       this.isOverChair = false;
       this.customers.forEach(customer => customer.resetPosition());
       this.shiftHeartsVertically();
     });
+
     this.on('drop', (pointer, target) => {
       if(target.getIsOccupied()) {
         this.isOverChair = false;
@@ -132,7 +150,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
 
     this.scene.events.on('orderTakenStartAnimation', () => {
       // causes every customer on screen to sitWait
-      this.customers.forEach(customer => customer.playCustomerAnimation('SitWait'));
+      // this.customers.forEach(customer => customer.playCustomerAnimation('SitWait'));
     });
   }
 
@@ -155,10 +173,12 @@ class CustomerGroup extends Phaser.GameObjects.Container {
 
   destroyCustomer() {
     this.customers.forEach(customer => customer.destroy());
+    this.isDestroyed = true;
+    this.scene.moveUpLine();
     this.destroy();
   }
 
-  update(time, delta) {
+  update(time, delta, scene) {
     if(!this.isWaiting) {
       this.patience = time + 15000;
     }
@@ -172,9 +192,10 @@ class CustomerGroup extends Phaser.GameObjects.Container {
       }
     }
     if (this.happiness <= 0) {
-      console.log('before error ', this.scene)
-      this.scene.updateScore(-480 - 20 * this.customers.length);
-      this.destroy();
+      console.log('before error ', {scene, this: this});
+      console.log(-480 -20 * this.customers.length);
+      scene.updateScore(-480 - 20 * this.customers.length);
+      this.destroyCustomer();
     }
   }
 }

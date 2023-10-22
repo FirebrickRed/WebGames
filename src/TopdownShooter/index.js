@@ -31,7 +31,8 @@ class GameScene extends Phaser.Scene {
 
   preload() {
     this.load.baseURL = 'assets/TopDownShooter/';
-    this.load.image('background', 'MererIslad.png');
+    // this.load.image('background', 'MererIslad.png');
+    this.load.image('background', 'MererIsladHeavy.jpg');
     this.load.image('playerCircle', 'Player.svg');
     this.load.image('enemyCircle', 'Enemy.svg');
     this.load.image('bulletCircle', 'Bullet.svg');
@@ -86,8 +87,13 @@ class GameScene extends Phaser.Scene {
 
     this.input.on('pointerdown', pointer => {
       if(!this.isGameOver) {
-        this.player.handleShooting(pointer.x, pointer.y);
+        this.player.shooting = true;
+        // this.player.handleShooting(pointer.x, pointer.y);
       }
+    });
+
+    this.input.on('pointerup', pointer => {
+      this.player.shooting = false;
     });
 
     this.input.setHitArea(this.background);
@@ -98,7 +104,7 @@ class GameScene extends Phaser.Scene {
 
     this.enemies.children.iterate(enemy => {
       enemy.update();
-    })
+    });
 
     this.player.update(this.cursors, this.wasdCursors);
     this.player.weapon.update(delta);
