@@ -11,7 +11,7 @@ class Player extends Phaser.GameObjects.Sprite {
     scene.physics.add.existing(this);
     this.body.setAllowGravity(false);
 
-    this.scene.events.on('addTask', task => {
+    scene.events.on('addTask', task => {
       if(task.isStandAbove) {
         task.y -= this.height/2;
       } else {
@@ -20,7 +20,7 @@ class Player extends Phaser.GameObjects.Sprite {
       this.tasks.push(task);
     });
 
-    this.scene.events.on('walkToBooth', booth => {
+    scene.events.on('walkToBooth', booth => {
       let pointsToAdd = 0;
       if(this.leftHand && this.leftHand.name === 'Meal' && !this.leftHand.isDirty && this.leftHand.tableNumber === booth.tableNumber ) {
         this.leftHand = this.leftHand.droppedOff(booth.x, booth.y);
@@ -33,7 +33,7 @@ class Player extends Phaser.GameObjects.Sprite {
       this.finishedTask(pointsToAdd);
     });
 
-    this.scene.events.on('walkToSink', () => {
+    scene.events.on('walkToSink', () => {
       let pointsToAdd = 0;
       if(this.leftHand && this.leftHand.name === 'Meal' && this.leftHand.isDirty) {
         this.leftHand = this.leftHand.cleanDish();
@@ -46,7 +46,7 @@ class Player extends Phaser.GameObjects.Sprite {
       this.finishedTask(pointsToAdd);
     });
 
-    this.scene.events.on('takeTicketFromTable', orderTicket => {
+    scene.events.on('takeTicketFromTable', orderTicket => {
       if(!this.leftHand) {
         this.leftHand = orderTicket;
       } else if(!this.rightHand) {
@@ -56,7 +56,7 @@ class Player extends Phaser.GameObjects.Sprite {
       this.finishedTask(50);
     });
 
-    this.scene.events.on('ticketHolderTakesTicket', () => {
+    scene.events.on('ticketHolderTakesTicket', () => {
       if(this.leftHand && this.leftHand.name === 'OrderTicket') {
         this.leftHand = this.leftHand.droppedOff();
       }
@@ -66,7 +66,7 @@ class Player extends Phaser.GameObjects.Sprite {
       this.finishedTask();
     });
 
-    this.scene.events.on('pickUpMeal', meal => {
+    scene.events.on('pickUpMeal', meal => {
       if(!this.leftHand) {
         this.leftHand = meal;
         meal.setIsPickedUp(true);
@@ -77,7 +77,7 @@ class Player extends Phaser.GameObjects.Sprite {
       this.finishedTask();
     });
 
-    this.scene.events.on('takeDirtyDishesFromTable', dirtyDishes => {
+    scene.events.on('takeDirtyDishesFromTable', dirtyDishes => {
       if(!this.leftHand) {
         this.leftHand = dirtyDishes;
       } else if(!this.rightHand) {
@@ -86,9 +86,9 @@ class Player extends Phaser.GameObjects.Sprite {
       this.finishedTask();
     });
 
-    this.scene.events.on('bringCheck', customerToDestroy => {
+    scene.events.on('bringCheck', customerToDestroy => {
       this.finishedTask(100);
-      this.scene.updateMoney(20);
+      scene.updateMoney(20);
       customerToDestroy.destroy();
     });
   }
