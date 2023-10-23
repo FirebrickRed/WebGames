@@ -48,7 +48,7 @@ class GameScene extends Phaser.Scene {
 
     this.background = this.add.image(0, 0, 'background');
     this.background.setOrigin(0, 0);
-    // this.background.setTint('#000');
+    this.background.setTint('#000');
     this.player = new Player(this);
 
     this.cameras.main.setBounds(0, 0, this.background.width, this.background.height);

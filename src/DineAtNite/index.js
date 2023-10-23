@@ -42,7 +42,7 @@ class GameScene extends Phaser.Scene {
     super({ key: 'GameScene' });
     this.score = 0;
     this.scoreText;
-    this.money = 0;
+    this.money = 1000;
     this.moneyText;
     this.customerGroups = [];
     this.nextCustomerTime = Phaser.Math.Between(GameConfig.NEXT_CUSTOMER_TIME.MIN, GameConfig.NEXT_CUSTOMER_TIME.MAX);
@@ -179,9 +179,16 @@ class GameScene extends Phaser.Scene {
     this.input.mouse.disableContextMenu();
 
     this.score = 0;
+    this.money = 1000;
     this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, { fontSize: '32px', fill: '#fff' });
-    this.moneyText = this.add.text(16, 45, '$0', { fontSize: '32px', fill: '#0f0' });
+    this.moneyText = this.add.text(16, 45, `$${this.money}`, { fontSize: '32px', fill: '#0f0' });
 
+    this.nextCustomerTime = Phaser.Math.Between(GameConfig.NEXT_CUSTOMER_TIME.MIN, GameConfig.NEXT_CUSTOMER_TIME.MAX);
+    this.initialCustomerX = GameConfig.INITIAL_CUSTOMER.X;
+    this.initialCustomerY = GameConfig.INITIAL_CUSTOMER.Y;
+    this.spacingY = GameConfig.SPACING_Y;
+    this.currentY = this.initialCustomerY;
+    
     let kitchen = new Kitchen(this, 400, 0);
     this.add.existing(kitchen);
 
