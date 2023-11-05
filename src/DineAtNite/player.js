@@ -15,7 +15,7 @@ class Player extends Phaser.GameObjects.Sprite {
       if(task.isStandAbove) {
         task.y -= this.height/2;
       } else {
-        task.y += this.height/2;
+        task.x -= this.width * 2;
       }
       this.tasks.push(task);
     });
@@ -59,9 +59,11 @@ class Player extends Phaser.GameObjects.Sprite {
     scene.events.on('ticketHolderTakesTicket', () => {
       if(this.leftHand && this.leftHand.name === 'OrderTicket') {
         this.leftHand = this.leftHand.droppedOff();
+        this.scene.events.emit('startFurnace');
       }
       if(this.rightHand && this.rightHand.name === 'OrderTicket') {
         this.rightHand = this.rightHand.droppedOff();
+        this.scene.events.emit('startFurnace');
       }
       this.finishedTask();
     });

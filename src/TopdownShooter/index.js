@@ -172,5 +172,5 @@ export function createTopDownShooter() {
     },
     scale: {},
     scene: [GameScene, GameOverScene]
-  })
+  });
 }

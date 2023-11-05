@@ -65,11 +65,10 @@ class GameScene extends Phaser.Scene {
     this.load.image('Heart', 'heart.svg');
     this.load.spritesheet('DeliveredFood', 'DeliveredFood.png', { frameWidth: 30, frameHeight: 30 });
     this.load.image('ServingTray', 'Plater.png');
-
-    this.load.image('TicketHolder', 'orderticketholder.jpg');
-    this.load.image('cleanSink', 'cleanSink.jpg');
-    this.load.image('Meal', 'meal.png');
-    this.load.image('dirtyDishes', 'dirtyDishes.png');
+    this.load.image('Furnace', 'Furnace.jpg');
+    this.load.spritesheet('FurnaceAnimation', 'FurnaceAnimation.png', { frameWidth: 86, frameHeight: 86 });
+    this.load.image('cleanSink', 'cauldron.png');
+    this.load.image('TicketHolder', 'orderticketholder.png');
   }
 
   create() {
@@ -171,6 +170,15 @@ class GameScene extends Phaser.Scene {
         frames: this.anims.generateFrameNumbers('DeliveredFood', { start: 0, end: 3 }),
         frameRate: 5,
         repeat: 1
+      });
+    }
+
+    if(!this.anims.exists('FurnaceAnimation')) {
+      this.anims.create({
+        key: 'FurnaceAnimation',
+        frames: this.anims.generateFrameNumbers('FurnaceAnimation'),
+        frameRate: 1,
+        repeat: 0
       });
     }
     //#endregion
@@ -285,8 +293,6 @@ export function createDineAtNiteGame() {
 /*
 
 To Do:
-- Add in score
-
 - Add in levels
 
 - Ability to save scores and level status
@@ -304,7 +310,6 @@ To Do:
   - Player holding animations
   - TicketHolder spin animation?? Not sure how ticket holder is going to look
   - Sink animation
-  - Kitchen animation 
   - Customers
     - Frustration animation
     - Happy animation

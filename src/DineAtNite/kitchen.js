@@ -2,23 +2,31 @@ export class Kitchen extends Phaser.GameObjects.Container {
   constructor(scene, x, y) {
     super(scene, x, y);
     this.name = 'Kitchen';
-    this.ticketHolder = new TicketHolder(scene, -150, 50);
-    this.sink = new Sink(scene, 300, 75);
+    this.ticketHolder = new TicketHolder(scene, 815, 175);
+    this.sink = new Sink(scene, 815, 650);
+    this.furnace = scene.add.sprite(815, 275, 'Furnace');
     this.meals = [];
 
-    this.add([this.ticketHolder, this.sink]);
+    this.add([this.ticketHolder, this.sink, this.furnace]);
 
-    this.scene.events.on('startMeal', tableNumber => {
-      this.scene.time.delayedCall(5000, () => {
+    scene.events.on('startMeal', tableNumber => {
+      scene.time.delayedCall(5000, () => {
         let mealCount = this.meals.length+1;
-        let mealX = 350;
-        let mealY = 75;
+        let mealX = 1215;
+        let mealY = 350;
         if(mealCount % 2 === 0) {
           mealX += 75;
         } else if (mealCount % 3 === 0) {
           mealX += 150;
         }
         this.meals.push(new Meal(this.scene, mealX, mealY, tableNumber));
+      });
+    });
+
+    scene.events.on('startFurnace', () => {
+      this.furnace.play('FurnaceAnimation');
+      scene.time.delayedCall(5000, () => {
+        this.furnace.setTexture('Furnace');
       });
     });
   }
