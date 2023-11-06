@@ -15,9 +15,9 @@ export class Kitchen extends Phaser.GameObjects.Container {
         let mealX = 1215;
         let mealY = 350;
         if(mealCount % 2 === 0) {
-          mealX += 75;
+          mealY += 75;
         } else if (mealCount % 3 === 0) {
-          mealX += 150;
+          mealY += 150;
         }
         this.meals.push(new Meal(this.scene, mealX, mealY, tableNumber));
       });
