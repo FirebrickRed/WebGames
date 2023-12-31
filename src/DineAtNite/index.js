@@ -71,107 +71,32 @@ class GameScene extends Phaser.Scene {
     this.load.image('TicketHolder', 'orderticketholder.png');
   }
 
+  createAnimation(key, spriteSheet, startFrame, endFrame, frameRate, repeat) {
+    if(!this.anims.exists(key)) {
+      this.anims.create({
+        key: key,
+        frames: this.anims.generateFrameNumbers(spriteSheet, { start: startFrame, end: endFrame }),
+        frameRate: frameRate,
+        repeat: repeat
+      });
+    }
+  }
+
   create() {
     // Animations
     //#region 
-    if(!this.anims.exists('baseWait')) {
-      this.anims.create({
-        key: 'baseWait',
-        frames: this.anims.generateFrameNumbers('IaniteBase', { start: 1, end: 2 }),
-        frameRate: 10,
-        repeat: -1,
-      });
-    }
-
-    if(!this.anims.exists('baseMenu')) {
-      this.anims.create({
-        key: 'baseMenu',
-        frames: this.anims.generateFrameNumbers('IaniteBase', { start: 5, end: 5 }),
-        frameRate: 10,
-        repeat: -1,
-      });
-    }
-    
-    if(!this.anims.exists('baseReadyToOrder')) {
-      this.anims.create({
-        key: 'baseReadyToOrder',
-        frames: this.anims.generateFrameNumbers('IaniteBase', { start: 6, end: 8 }),
-        frameRate: 5,
-        repeat: -1,
-      });
-    }
-    
-    if(!this.anims.exists('baseSitWait')) {
-      this.anims.create({
-        key: 'baseSitWait',
-        frames: this.anims.generateFrameNumbers('IaniteBase', { start: 9, end: 9 }),
-        frameRate: 5,
-        repeat: -1,
-      });
-    }
-    
-    if(!this.anims.exists('baseEat')) {
-      this.anims.create({
-        key: 'baseEat',
-        frames: this.anims.generateFrameNumbers('IaniteBase', { start: 10, end: 13 }),
-        frameRate: 5,
-        repeat: -1,
-      });
-    }
-
-    if(!this.anims.exists('colorWait')) {
-      this.anims.create({
-        key: 'colorWait',
-        frames: this.anims.generateFrameNumbers('IaniteColor', { start: 1, end: 2 }),
-        frameRate: 10,
-        repeat: -1,
-      });
-    }
-    
-    if(!this.anims.exists('colorMenu')) {
-      this.anims.create({
-        key: 'colorMenu',
-        frames: this.anims.generateFrameNumbers('IaniteColor', { start: 5, end: 5 }),
-        frameRate: 10,
-        repeat: -1,
-      });
-    }
-    
-    if(!this.anims.exists('colorReadyToOrder')) {
-      this.anims.create({
-        key: 'colorReadyToOrder',
-        frames: this.anims.generateFrameNumbers('IaniteColor', { start: 6, end: 8 }),
-        frameRate: 5,
-        repeat: -1,
-      });
-    }
-    
-    if(!this.anims.exists('colorSitWait')) {
-      this.anims.create({
-        key: 'colorSitWait',
-        frames: this.anims.generateFrameNumbers('IaniteColor', { start: 9, end: 9 }),
-        frameRate: 5,
-        repeat: -1,
-      });
-    }
-    
-    if(!this.anims.exists('colorEat')) {
-      this.anims.create({
-        key: 'colorEat',
-        frames: this.anims.generateFrameNumbers('IaniteColor', { start: 10, end: 13 }),
-        frameRate: 5,
-        repeat: -1,
-      });
-    }
-
-    if(!this.anims.exists('FoodToEat')) {
-      this.anims.create({
-        key: 'FoodToEat',
-        frames: this.anims.generateFrameNumbers('DeliveredFood', { start: 0, end: 3 }),
-        frameRate: 5,
-        repeat: 1
-      });
-    }
+    this.createAnimation('baseWait', 'IaniteBase', 1, 2, 10, -1);
+    this.createAnimation('baseMenu', 'IaniteBase', 5, 5, 10, -1);
+    this.createAnimation('baseReadyToOrder', 'IaniteBase', 6, 8, 5, -1);
+    this.createAnimation('baseSitWait', 'IaniteBase', 9, 9, 5, -1);
+    this.createAnimation('baseEat', 'IaniteBase', 10, 13, 5, -1);
+    this.createAnimation('colorWait', 'IaniteColor', 1, 2, 10, -1);
+    this.createAnimation('colorMenu', 'IaniteColor', 5, 5, 10, -1);
+    this.createAnimation('colorReadyToOrder', 'IaniteColor', 6, 8, 5, -1);
+    this.createAnimation('colorSitWait', 'IaniteColor', 9, 9, 5, -1);
+    this.createAnimation('colorEat', 'IaniteColor', 10, 13, 5, -1);
+    this.createAnimation('FoodToEat', 'DeliveredFood', 0, 3, 5, 1);
+    // this.createAnimation('FurnaceAnimation', 'FurnaceAnimation', )
 
     if(!this.anims.exists('FurnaceAnimation')) {
       this.anims.create({
@@ -291,6 +216,9 @@ export function createDineAtNiteGame() {
 
 
 /*
+
+TODO: fix customer hover when table is taken
+TODO: fix taking order from customers while hands full
 
 To Do:
 - Add in levels
