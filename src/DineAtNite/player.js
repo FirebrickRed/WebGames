@@ -1,6 +1,15 @@
+import { GameConfig } from "./config";
+
 class Player extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, 'player');
+    this.initializeProperties();
+    scene.physics.add.existing(this);
+    this.body.setAllowGravity(false);
+    this.initializeEventListeners();
+  }
+  
+  initializeProperties() {
     this.name = 'player';
     this.currentTask;
     this.tasks = [];
@@ -8,95 +17,111 @@ class Player extends Phaser.GameObjects.Sprite {
     this.rightHand = null;
     this.walkSpeed = 250;
     this.setInteractive();
-    scene.physics.add.existing(this);
-    this.body.setAllowGravity(false);
+  }
 
-    scene.events.on('addTask', task => {
-      if(task.isStandAbove) {
-        task.y -= this.height/2;
-      } else {
-        task.x -= this.width * 2;
-      }
-      this.tasks.push(task);
-    });
+  initializeEventListeners() {
+    this.scene.events.on('addTask', this.handleAddTask.bind(this));
+    this.scene.events.on('walkToBooth', this.handleWalkToBooth.bind(this));
+    this.scene.events.on('walkToSink', this.handleWalkToSink.bind(this));
+    this.scene.events.on('takeTicketFromTable', this.handleTakeTicketFromTable.bind(this));
+    this.scene.events.on('ticketHolderTakesTicket', this.handleTicketHolderTakesTicket.bind(this));
+    this.scene.events.on('pickUpMeal', this.handlePickUpMeal.bind(this));
+    this.scene.events.on('takeDirtyDishesFromTable', this.handleTakeDirtyDishesFromTable.bind(this));
+    this.scene.events.on('bringCheck', this.handleBringCheck.bind(this));
+  }
 
-    scene.events.on('walkToBooth', booth => {
-      let pointsToAdd = 0;
-      if(this.leftHand && this.leftHand.name === 'Meal' && !this.leftHand.isDirty && this.leftHand.tableNumber === booth.tableNumber ) {
-        this.leftHand = this.leftHand.droppedOff(booth.x, booth.y);
-        pointsToAdd = 100;
-      }
-      if(this.rightHand && this.rightHand.name === 'Meal' && this.rightHand.tableNumber === booth.tableNumber) {
-        this.rightHand = this.rightHand.droppedOff(booth.x, booth.y);
-        pointsToAdd = 100;
-      }
-      this.finishedTask(pointsToAdd);
-    });
+  handleAddTask(task) {
+    if(task.isStandAbove) {
+      task.y -= this.height/2;
+    } else {
+      task.x -= this.width * 2;
+    }
+    this.tasks.push(task);
+  }
 
-    scene.events.on('walkToSink', () => {
-      let pointsToAdd = 0;
-      if(this.leftHand && this.leftHand.name === 'Meal' && this.leftHand.isDirty) {
-        this.leftHand = this.leftHand.cleanDish();
-        pointsToAdd = 20;
-      }
-      if(this.rightHand && this.rightHand.name === 'Meal' && this.rightHand.isDirty) {
-        this.rightHand = this.rightHand.cleanDish();
-        pointsToAdd = 20;
-      }
-      this.finishedTask(pointsToAdd);
-    });
+  handleWalkToBooth(booth) {
+    let pointsToAdd = 0;
+    if(this.leftHand && this.leftHand.name === 'Meal' && !this.leftHand.isDirty && this.leftHand.tableNumber === booth.tableNumber) {
+      this.leftHand = this.leftHand.droppedOff(booth.x, booth.y);
+      pointsToAdd = GameConfig.SCORE_VALUES.MEAL_DROPPED_OFF_SCORE;
+    }
+    if(this.rightHand && this.rightHand.name === 'Meal' && this.rightHand.tableNumber === booth.tableNumber) {
+      this.rightHand = this.rightHand.droppedOff(booth.x, booth.y);
+      pointsToAdd = GameConfig.SCORE_VALUES.MEAL_DROPPED_OFF_SCORE;
+    }
+    this.finishedTask(pointsToAdd);
+  }
 
-    scene.events.on('takeTicketFromTable', orderTicket => {
-      if(!this.leftHand) {
-        this.leftHand = orderTicket;
-      } else if(!this.rightHand) {
-        this.rightHand = orderTicket;
-      }
+  handleWalkToSink() {
+    let pointsToAdd = 0;
+    if(this.leftHand && this.leftHand.name === 'Meal' && this.leftHand.isDirty) {
+      this.leftHand = this.leftHand.cleanDish();
+      pointsToAdd = GameConfig.SCORE_VALUES.CLEAN_DIRTY_DISHES_SCORE;
+    }
+    if(this.rightHand && this.rightHand.name === 'Meal' && this.rightHand.isDirty) {
+      this.rightHand = this.rightHand.cleanDish();
+      pointsToAdd = GameConfig.SCORE_VALUES.CLEAN_DIRTY_DISHES_SCORE;
+    }
+    this.finishedTask(pointsToAdd);
+  }
+
+  handleTakeTicketFromTable(orderTicket) {
+    if(!this.leftHand) {
+      this.leftHand = orderTicket;
       orderTicket.addToScene();
-      this.finishedTask(50);
-    });
+      this.finishedTask(GameConfig.SCORE_VALUES.ORDER_TAKEN_SCORE);
+    } else if(!this.rightHand) {
+      this.rightHand = orderTicket;
+      orderTicket.addToScene();
+      this.finishedTask(GameConfig.SCORE_VALUES.ORDER_TAKEN_SCORE);
+    }
+  }
 
-    scene.events.on('ticketHolderTakesTicket', () => {
-      if(this.leftHand && this.leftHand.name === 'OrderTicket') {
-        this.leftHand = this.leftHand.droppedOff();
-        this.scene.events.emit('startFurnace');
-      }
-      if(this.rightHand && this.rightHand.name === 'OrderTicket') {
-        this.rightHand = this.rightHand.droppedOff();
-        this.scene.events.emit('startFurnace');
-      }
-      this.finishedTask();
-    });
+  handleTicketHolderTakesTicket() {
+    if(this.leftHand && this.leftHand.name === 'OrderTicket') {
+      this.leftHand = this.leftHand.droppedOff();
+      this.scene.events.emit('startFurnace');
+    }
+    if(this.rightHand && this.rightHand.name === 'OrderTicket') {
+      this.rightHand = this.rightHand.droppedOff();
+      this.scene.events.emit('startFurnace');
+    }
+    this.finishedTask();
+  }
 
-    scene.events.on('pickUpMeal', meal => {
-      if(!this.leftHand) {
-        this.leftHand = meal;
-        meal.setIsPickedUp(true);
-      } else if(!this.rightHand) {
-        this.rightHand = meal;
-        meal.setIsPickedUp(true);
-      }
-      this.finishedTask();
-    });
+  handlePickUpMeal(meal) {
+    if(!this.leftHand) {
+      this.leftHand = meal;
+      meal.setIsPickedUp(true);
+    } else if(!this.rightHand) {
+      this.rightHand = meal;
+      meal.setIsPickedUp(true);
+    }
+    this.finishedTask();
+  }
 
-    scene.events.on('takeDirtyDishesFromTable', dirtyDishes => {
-      if(!this.leftHand) {
-        this.leftHand = dirtyDishes;
-      } else if(!this.rightHand) {
-        this.rightHand = dirtyDishes;
-      }
-      this.finishedTask();
-    });
+  handleTakeDirtyDishesFromTable(dirtyDishes) {
+    if(!this.leftHand) {
+      this.leftHand = dirtyDishes;
+    } else if(!this.rightHand) {
+      this.rightHand = dirtyDishes;
+    }
+    this.finishedTask();
+  }
 
-    scene.events.on('bringCheck', customerToDestroy => {
-      this.finishedTask(100);
-      scene.updateMoney(20);
-      customerToDestroy.destroy();
-    });
+  handleBringCheck(customerToDestroy) {
+    this.finishedTask(GameConfig.SCORE_VALUES.DELIVERED_CHECK_SCORE);
+    this.scene.updateMoney(customerToDestroy.processPayment());
+    customerToDestroy.destroy();
   }
 
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
+    this.handleMovement();
+    this.updateItemPositions();
+  }
+
+  handleMovement() {
     if(this.tasks.length > 0 && this.currentTask === undefined) {
       this.currentTask = this.tasks.shift();
       this.scene.physics.moveToObject(this, this.currentTask, this.walkSpeed);
@@ -109,6 +134,9 @@ class Player extends Phaser.GameObjects.Sprite {
         this.currentTask.emit();
       }
     }
+  }
+
+  updateItemPositions() {
     if(this.leftHand) {
       this.leftHand.x = this.x - 20;
       this.leftHand.y = this.y;
@@ -122,6 +150,8 @@ class Player extends Phaser.GameObjects.Sprite {
   finishedTask(pointsToAdd) {
     this.currentTask = undefined;
     if(pointsToAdd > 0) {
+      // after game over scene
+      console.log('properties undefined: ', this.scene);
       this.scene.updateScore(pointsToAdd);
     }
   }
