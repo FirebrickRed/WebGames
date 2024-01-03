@@ -137,7 +137,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         customer.playCustomerAnimation('Menu');
       });
       this.disableInteractive();
-      this.scene.updateScore(20 * this.customers.length);
+      this.scene.updateScore(GameConfig.SCORE_VALUES.SEATED_CUSTOMER_SCORE * this.customers.length);
       this.scene.moveUpLine();
       this.shiftHeartsHorizontally(this.booth);
       this.scene.time.delayedCall(this.speed, () => {
@@ -160,6 +160,15 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         });
       }
     }
+  }
+
+  processPayment() {
+    return (GameConfig.CUSTOMER.BASE_PAYMENT * this.customers.length) + this.calculateHeartsBonus();
+  }
+
+  calculateHeartsBonus() {
+    let heartsRemaining = this.happiness / 2;
+    return heartsRemaining * (GameConfig.CUSTOMER.BONUS_PER_HEART * this.customers.length);
   }
 
   setY(y) {
@@ -240,11 +249,11 @@ class Customer extends Phaser.GameObjects.Container {
   }
 
   setColor() {
-    const colorKey = Object.keys(GameConfig.CUSTOMER_COLOR);
+    const colorKey = Object.keys(GameConfig.CUSTOMER.CUSTOMER_COLOR);
     const randomIndex = Math.floor(Math.random() * colorKey.length);
     const randomColor = colorKey[randomIndex];
     this.color = randomColor;
-    this.customerColor.setTint(GameConfig.CUSTOMER_COLOR[this.color]);
+    this.customerColor.setTint(GameConfig.CUSTOMER.CUSTOMER_COLOR[this.color]);
   }
 
   resetPosition() {

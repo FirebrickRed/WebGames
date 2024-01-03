@@ -40,16 +40,18 @@ class GameOverScene extends Phaser.Scene {
 class GameScene extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
-    this.score = 0;
+    this.score = GameConfig.SCORE_VALUES.STARTING_SCORE;
     this.scoreText;
-    this.money = 1000;
+    this.money = GameConfig.BOOTHS.COST.BASE;
     this.moneyText;
     this.customerGroups = [];
-    this.nextCustomerTime = Phaser.Math.Between(GameConfig.NEXT_CUSTOMER_TIME.MIN, GameConfig.NEXT_CUSTOMER_TIME.MAX);
-    this.initialCustomerX = GameConfig.INITIAL_CUSTOMER.X;
-    this.initialCustomerY = GameConfig.INITIAL_CUSTOMER.Y;
+    this.nextCustomerTime = Phaser.Math.Between(GameConfig.CUSTOMER.NEXT_CUSTOMER_TIME.MIN, GameConfig.CUSTOMER.NEXT_CUSTOMER_TIME.MAX);
+    this.initialCustomerX = GameConfig.CUSTOMER.INITIAL_CUSTOMER.X;
+    this.initialCustomerY = GameConfig.CUSTOMER.INITIAL_CUSTOMER.Y;
     this.spacingY = GameConfig.SPACING_Y;
     this.currentY = this.initialCustomerY;
+    this.activeTables = 0;
+    this.booths = [];
   }
 
   preload() {
@@ -96,29 +98,18 @@ class GameScene extends Phaser.Scene {
     this.createAnimation('colorSitWait', 'IaniteColor', 9, 9, 5, -1);
     this.createAnimation('colorEat', 'IaniteColor', 10, 13, 5, -1);
     this.createAnimation('FoodToEat', 'DeliveredFood', 0, 3, 5, 1);
-    // this.createAnimation('FurnaceAnimation', 'FurnaceAnimation', )
-
-    if(!this.anims.exists('FurnaceAnimation')) {
-      this.anims.create({
-        key: 'FurnaceAnimation',
-        frames: this.anims.generateFrameNumbers('FurnaceAnimation'),
-        frameRate: 1,
-        repeat: 0
-      });
-    }
+    this.createAnimation('FurnaceAnimation', 'FurnaceAnimation', 0, 4, 1, 0);
     //#endregion
 
     this.add.image(0, 0, 'background').setOrigin(0);
     this.input.mouse.disableContextMenu();
 
-    this.score = 0;
-    this.money = 1000;
     this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, { fontSize: '32px', fill: '#fff' });
     this.moneyText = this.add.text(16, 45, `$${this.money}`, { fontSize: '32px', fill: '#0f0' });
 
-    this.nextCustomerTime = Phaser.Math.Between(GameConfig.NEXT_CUSTOMER_TIME.MIN, GameConfig.NEXT_CUSTOMER_TIME.MAX);
-    this.initialCustomerX = GameConfig.INITIAL_CUSTOMER.X;
-    this.initialCustomerY = GameConfig.INITIAL_CUSTOMER.Y;
+    this.nextCustomerTime = Phaser.Math.Between(GameConfig.CUSTOMER.NEXT_CUSTOMER_TIME.MIN, GameConfig.CUSTOMER.NEXT_CUSTOMER_TIME.MAX);
+    this.initialCustomerX = GameConfig.CUSTOMER.INITIAL_CUSTOMER.X;
+    this.initialCustomerY = GameConfig.CUSTOMER.INITIAL_CUSTOMER.Y;
     this.spacingY = GameConfig.SPACING_Y;
     this.currentY = this.initialCustomerY;
     
@@ -130,24 +121,39 @@ class GameScene extends Phaser.Scene {
 
     this.customerGroups = [];
 
-    let booth1 = new Booth(this, 900, 500, 1);
-    let booth2 = new Booth(this, 900, 300, 2);
-    let booth3 = new Booth(this, 600, 500, 3);
-    let booth4 = new Booth(this, 600, 300, 4);
-    let booth5 = new Booth(this, 300, 500, 5);
-    let booth6 = new Booth(this, 300, 300, 6);
-    this.add.existing(booth1);
-    this.add.existing(booth2);
-    this.add.existing(booth3);
-    this.add.existing(booth4);
-    this.add.existing(booth5);
-    this.add.existing(booth6);
+    const boothConfigs = Object.values(GameConfig.BOOTHS.PROPERTIES);
+    for(let i = 0; i < boothConfigs.length; i++) {
+      let boothConfig = boothConfigs[i];
+      let newBooth = new Booth(this, boothConfig.X, boothConfig.Y, i, this.getTableCost());
+      this.booths.push(newBooth);
+      this.add.existing(newBooth);
+    }
 
     this.input.on('pointerdown', pointer => {
       if(pointer.rightButtonDown()) {
         player.clearTasks();
       }
     })
+  }
+
+  getTableCost() {
+    // console.log('base: ', GameConfig.BOOTHS.COST.BASE, this.activeTables);
+    let pow = Math.pow(GameConfig.BOOTHS.COST.GROWTH_RATE, this.activeTables);
+    // console.log('pow: ', pow);
+    // let pow = Math.pow(GameConfig.BOOTHS.COST.GROWTH_RATE, this.activeTables);
+    // console.log('pow: ', pow);
+    // console.log('result: ', GameConfig.BOOTHS.COST.BASE * pow);
+    return GameConfig.BOOTHS.COST.BASE * pow;
+    // return GameConfig.BOOTHS.COST.BASE * Math.pow(GameConfig.BOOTHS.COST.GROWTH_RATE, this.activeTables);
+  }
+
+  updateActiveTables() {
+    this.activeTables++;
+    this.booths.forEach(booth => {
+      if(!booth.isActive) {
+        booth.updateTablePrice(this.getTableCost());
+      }
+    });
   }
 
   updateScore(points) {
@@ -177,7 +183,7 @@ class GameScene extends Phaser.Scene {
       });
 
       this.currentY -= this.spacingY;
-      this.nextCustomerTime = time + Phaser.Math.Between(GameConfig.NEXT_CUSTOMER_TIME.MIN, GameConfig.NEXT_CUSTOMER_TIME.MAX);
+      this.nextCustomerTime = time + Phaser.Math.Between(GameConfig.CUSTOMER.NEXT_CUSTOMER_TIME.MIN, GameConfig.CUSTOMER.NEXT_CUSTOMER_TIME.MAX);
     }
   }
 

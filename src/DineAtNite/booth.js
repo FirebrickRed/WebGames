@@ -2,30 +2,32 @@ import { OrderTicket } from "./kitchen";
 import { GameConfig } from './config';
 
 class Booth extends Phaser.GameObjects.Container {
-  constructor(scene, x, y, tableNumber) {
+  constructor(scene, x, y, tableNumber, tablePrice) {
     super(scene, x, y);
-    this.initializeProperties(x, y, tableNumber)
+    this.initializeProperties(tableNumber, tablePrice)
     
     this.add([this.table, ...this.chairs]);
   }
 
-  initializeProperties(x, y, tableNumber) {
+  initializeProperties(tableNumber, tablePrice) {
     this.name = 'booth';
     this.isActive = false;
     this.isOccupied = false;
     this.tableNumber = tableNumber;
     this.customerToDestroy;
-    this.tableText = this.scene.add.text(x-50, y-20, '-$1000', { fontSize: '32px', fill: '#f00' }).setDepth(1);
-    this.table = new Table(this.scene, 0, 0, this.tableText, this.tableNumber);
+    this.table = new Table(this.scene, 0, 0, tableNumber, tablePrice);
     this.chairs = [new Chair(this.scene, -80, 0, true, 0), new Chair(this.scene, 80, 0, false, 1)];
   }
 
   setIsActive() {
     this.isActive = true;
-    this.scene.updateMoney(-1000);
+    this.scene.updateMoney(-this.table.tablePrice);
     this.table.setIsActive();
     this.chairs.forEach(chair => chair.setIsActive());
-    this.tableText.destroy();
+  }
+
+  updateTablePrice(newTablePrice) {
+    this.table.updateTablePrice(newTablePrice);
   }
   
   setBoothOccupied(isBoothOccupied) {
@@ -55,19 +57,20 @@ class Booth extends Phaser.GameObjects.Container {
 }
 
 class Table extends Phaser.GameObjects.Image {
-  constructor(scene, x, y, tableText) {
+  constructor(scene, x, y, tableNumber, tablePrice) {
     super(scene, x, y, 'table');
-    this.initializeProperties(tableText);
+    this.initializeProperties(tableNumber, tablePrice);
     this.on('pointerup', this.handlePointerUp.bind(this));
   }
 
-  initializeProperties(tableText) {
+  initializeProperties(tableNumber, tablePrice) {
     this.name = 'table';
     this.isBuying = false;
     this.isActive = false;
     this.setInteractive();
     this.setTint('0x555555');
-    this.tableText = tableText;
+    this.tableText = this.scene.add.text(GameConfig.BOOTHS.PROPERTIES[tableNumber].X-50, GameConfig.BOOTHS.PROPERTIES[tableNumber].Y-30, `-$${tablePrice}`, { fontSize: '32px', fill: '#f00' }).setDepth(1);
+    this.tablePrice = tablePrice;
     this.resetTextEvent;
   }
 
@@ -137,23 +140,22 @@ class Table extends Phaser.GameObjects.Image {
   }
 
   handleBuying() {
-    if(this.scene.money >= 1000) {
+    if(this.scene.money >= this.tablePrice) {
       this.parentContainer.setIsActive();
+      this.scene.updateActiveTables();
     } else {
       this.showInsufficientFundsMessage();
     }
   }
 
   startBuyingProcess() {
-    this.tableText.setText('Confirm');
-    this.tableText.setStyle({ fill: '#0f0' });
+    this.setTableText('Confirm', '#0f0');
     this.isBuying = true;
     this.scheduleResetTextEvent();
   }
 
   showInsufficientFundsMessage() {
-    this.tableText.setText('not enough\n$$');
-    this.tableText.setStyle({ fill: '#f00' });
+    this.setTableText('not enough\n$$', '#f00');
     this.isBuying = false;
     this.scheduleResetTextEvent();
   }
@@ -162,12 +164,23 @@ class Table extends Phaser.GameObjects.Image {
     this.resetTextEvent = this.scene.time.addEvent({
       delay: 2000,
       callback: () => {
-        this.tableText.setText('-$1000');
-        this.tableText.setStyle({ fill: '#f00' });
+        this.setTableText(`-$${this.tablePrice}`, '#f00');
         this.isBuying = false;
       },
       loop: false
     });
+  }
+
+  updateTablePrice(newTablePrice) {
+    this.tablePrice = newTablePrice;
+    this.setTableText(`-$${this.tablePrice}`, '#f00');
+  }
+
+  setTableText(text, fill) {
+    if(this.tableText) {
+      this.tableText.setText(text);
+      this.tableText.setStyle({ fill: fill });
+    }
   }
 
   setIsActive() {
@@ -203,7 +216,7 @@ class Chair extends Phaser.GameObjects.Container {
   }
   
   setColor(color) {
-    this.chairColor.setTint(GameConfig.CUSTOMER_COLOR[color]);
+    this.chairColor.setTint(GameConfig.CUSTOMER.CUSTOMER_COLOR[color]);
   }
   
   getIsOccupied() {

@@ -1,10 +1,12 @@
+import { GameConfig } from "./config";
+
 class Player extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, 'player');
     this.initializeProperties();
     scene.physics.add.existing(this);
     this.body.setAllowGravity(false);
-    this.initializeEventListeners(scene);
+    this.initializeEventListeners();
   }
   
   initializeProperties() {
@@ -17,15 +19,15 @@ class Player extends Phaser.GameObjects.Sprite {
     this.setInteractive();
   }
 
-  initializeEventListeners(scene) {
-    scene.events.on('addTask', this.handleAddTask.bind(this));
-    scene.events.on('walkToBooth', this.handleWalkToBooth.bind(this));
-    scene.events.on('walkToSink', this.handleWalkToSink.bind(this));
-    scene.events.on('takeTicketFromTable', this.handleTakeTicketFromTable.bind(this));
-    scene.events.on('ticketHolderTakesTicket', this.handleTicketHolderTakesTicket.bind(this));
-    scene.events.on('pickUpMeal', this.handlePickUpMeal.bind(this));
-    scene.events.on('takeDirtyDishesFromTable', this.handleTakeDirtyDishesFromTable.bind(this));
-    scene.events.on('bringCheck', this.handleBringCheck.bind(this));
+  initializeEventListeners() {
+    this.scene.events.on('addTask', this.handleAddTask.bind(this));
+    this.scene.events.on('walkToBooth', this.handleWalkToBooth.bind(this));
+    this.scene.events.on('walkToSink', this.handleWalkToSink.bind(this));
+    this.scene.events.on('takeTicketFromTable', this.handleTakeTicketFromTable.bind(this));
+    this.scene.events.on('ticketHolderTakesTicket', this.handleTicketHolderTakesTicket.bind(this));
+    this.scene.events.on('pickUpMeal', this.handlePickUpMeal.bind(this));
+    this.scene.events.on('takeDirtyDishesFromTable', this.handleTakeDirtyDishesFromTable.bind(this));
+    this.scene.events.on('bringCheck', this.handleBringCheck.bind(this));
   }
 
   handleAddTask(task) {
@@ -41,11 +43,11 @@ class Player extends Phaser.GameObjects.Sprite {
     let pointsToAdd = 0;
     if(this.leftHand && this.leftHand.name === 'Meal' && !this.leftHand.isDirty && this.leftHand.tableNumber === booth.tableNumber) {
       this.leftHand = this.leftHand.droppedOff(booth.x, booth.y);
-      pointsToAdd = 100;
+      pointsToAdd = GameConfig.SCORE_VALUES.MEAL_DROPPED_OFF_SCORE;
     }
     if(this.rightHand && this.rightHand.name === 'Meal' && this.rightHand.tableNumber === booth.tableNumber) {
       this.rightHand = this.rightHand.droppedOff(booth.x, booth.y);
-      pointsToAdd = 100;
+      pointsToAdd = GameConfig.SCORE_VALUES.MEAL_DROPPED_OFF_SCORE;
     }
     this.finishedTask(pointsToAdd);
   }
@@ -54,11 +56,11 @@ class Player extends Phaser.GameObjects.Sprite {
     let pointsToAdd = 0;
     if(this.leftHand && this.leftHand.name === 'Meal' && this.leftHand.isDirty) {
       this.leftHand = this.leftHand.cleanDish();
-      pointsToAdd = 20;
+      pointsToAdd = GameConfig.SCORE_VALUES.CLEAN_DIRTY_DISHES_SCORE;
     }
     if(this.rightHand && this.rightHand.name === 'Meal' && this.rightHand.isDirty) {
       this.rightHand = this.rightHand.cleanDish();
-      pointsToAdd = 20;
+      pointsToAdd = GameConfig.SCORE_VALUES.CLEAN_DIRTY_DISHES_SCORE;
     }
     this.finishedTask(pointsToAdd);
   }
@@ -66,11 +68,13 @@ class Player extends Phaser.GameObjects.Sprite {
   handleTakeTicketFromTable(orderTicket) {
     if(!this.leftHand) {
       this.leftHand = orderTicket;
+      orderTicket.addToScene();
+      this.finishedTask(GameConfig.SCORE_VALUES.ORDER_TAKEN_SCORE);
     } else if(!this.rightHand) {
       this.rightHand = orderTicket;
+      orderTicket.addToScene();
+      this.finishedTask(GameConfig.SCORE_VALUES.ORDER_TAKEN_SCORE);
     }
-    orderTicket.addToScene();
-    this.finishedTask(50);
   }
 
   handleTicketHolderTakesTicket() {
@@ -106,8 +110,8 @@ class Player extends Phaser.GameObjects.Sprite {
   }
 
   handleBringCheck(customerToDestroy) {
-    this.finishedTask(100);
-    this.scene.updateMoney(20);
+    this.finishedTask(GameConfig.SCORE_VALUES.DELIVERED_CHECK_SCORE);
+    this.scene.updateMoney(customerToDestroy.processPayment());
     customerToDestroy.destroy();
   }
 
