@@ -14,7 +14,7 @@ class Booth extends Phaser.GameObjects.Container {
     this.isActive = false;
     this.isOccupied = false;
     this.tableNumber = tableNumber;
-    this.customerToDestroy;
+    this.occupyingCustomerGroup;
     this.table = new Table(this.scene, 0, 0, tableNumber, tablePrice);
     this.chairs = [new Chair(this.scene, -80, 0, true, 0), new Chair(this.scene, 80, 0, false, 1)];
   }
@@ -30,8 +30,9 @@ class Booth extends Phaser.GameObjects.Container {
     this.table.updateTablePrice(newTablePrice);
   }
   
-  setBoothOccupied(isBoothOccupied) {
+  setBoothOccupied(isBoothOccupied, customerGroup) {
     this.isOccupied = isBoothOccupied;
+    this.occupyingCustomerGroup = customerGroup;
   }
 
   readyToOrder() {
@@ -40,19 +41,18 @@ class Booth extends Phaser.GameObjects.Container {
 
   orderTaken() {
     this.orderTicket = null;
-    this.scene.events.emit('orderTakenStartAnimation');
+    this.occupyingCustomerGroup.customers.forEach(customer => {customer.playCustomerAnimation('SitWait');});
   }
 
   dishesTaken() {
+    this.dirtyDishes.setDirtyDishes();
     this.dirtyDishes = null;
     this.isOccupied = false;
   }
 
-  finishedEating(meal, customers) {
-    this.checkReady = true;
-    meal.setDirtyDishes();
+  finishedEating(meal) {
     this.dirtyDishes = meal;
-    this.customerToDestroy = customers;
+    this.checkReady = true;
   }
 }
 
@@ -117,7 +117,7 @@ class Table extends Phaser.GameObjects.Image {
 
   modifyTaskForCheckReady(task) {
     task.emit = () => {
-      this.scene.events.emit('bringCheck', this.parentContainer.customerToDestroy);
+      this.scene.events.emit('bringCheck', this.parentContainer.occupyingCustomerGroup);
     };
     this.parentContainer.checkReady = false;
   }

@@ -97,7 +97,7 @@ class GameScene extends Phaser.Scene {
     this.createAnimation('colorReadyToOrder', 'IaniteColor', 6, 8, 5, -1);
     this.createAnimation('colorSitWait', 'IaniteColor', 9, 9, 5, -1);
     this.createAnimation('colorEat', 'IaniteColor', 10, 13, 5, -1);
-    this.createAnimation('FoodToEat', 'DeliveredFood', 0, 3, 5, 1);
+    this.createAnimation('FoodToEat', 'DeliveredFood', 0, 3, .35, 0);
     this.createAnimation('FurnaceAnimation', 'FurnaceAnimation', 0, 4, 1, 0);
     //#endregion
 

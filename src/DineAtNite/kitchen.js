@@ -111,9 +111,9 @@ export class Meal extends Phaser.GameObjects.Sprite {
   initializeProperties(tableNumber) {
     this.name = 'Meal';
     this.tableNumber = tableNumber;
+    this.plates = [];
     this.isPickedUp = false;
     this.isDirty = false;
-    // this.scene.add.text(0, 0, `#${this.tableNumber}`, { fontSize: '24px', fill: '#fff' });
     this.setInteractive();
   }
 
@@ -129,21 +129,27 @@ export class Meal extends Phaser.GameObjects.Sprite {
   }
 
   setIsPickedUp(pickedUp) {
-    this.isPickedUp = pickedUp
+    this.isPickedUp = pickedUp;
   }
 
   setDirtyDishes() {
-    // this.setTexture('dirtyDishes');
-    // this.setInteractive(false);  
+    this.setInteractive(false);
+    this.setVisible(true);
+    this.plates.forEach(plate => plate.destroy());
     this.isDirty = true;
   }
 
-  droppedOff(newX, newY) {
-    this.x = newX;
-    this.y = newY;
-    this.setTexture('DeliveredFood');
-    // this.scene.anims.play('FoodToEat');
+  droppedOff(customerGroup) {
+    customerGroup.customers.forEach(customer => {
+      let plate = this.scene.add.sprite(customerGroup.booth.x, customerGroup.booth.y, 'ServingTray');
+      plate.x += customer.x / 2;
+      plate.y += -15;
+      plate.play('FoodToEat');
+      this.plates.push(plate);
+    });
+    this.play('FoodToEat');
     this.scene.events.emit('startEating', this);
+    this.setVisible(false);
     return null;
   }
 

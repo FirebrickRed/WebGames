@@ -42,11 +42,11 @@ class Player extends Phaser.GameObjects.Sprite {
   handleWalkToBooth(booth) {
     let pointsToAdd = 0;
     if(this.leftHand && this.leftHand.name === 'Meal' && !this.leftHand.isDirty && this.leftHand.tableNumber === booth.tableNumber) {
-      this.leftHand = this.leftHand.droppedOff(booth.x, booth.y);
+      this.leftHand = this.leftHand.droppedOff(booth.occupyingCustomerGroup);
       pointsToAdd = GameConfig.SCORE_VALUES.MEAL_DROPPED_OFF_SCORE;
     }
     if(this.rightHand && this.rightHand.name === 'Meal' && this.rightHand.tableNumber === booth.tableNumber) {
-      this.rightHand = this.rightHand.droppedOff(booth.x, booth.y);
+      this.rightHand = this.rightHand.droppedOff(booth.occupyingCustomerGroup);
       pointsToAdd = GameConfig.SCORE_VALUES.MEAL_DROPPED_OFF_SCORE;
     }
     this.finishedTask(pointsToAdd);

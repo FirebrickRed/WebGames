@@ -62,11 +62,6 @@ class CustomerGroup extends Phaser.GameObjects.Container {
     this.on('dragleave', this.handleDragLeave.bind(this));
     this.on('drop', this.handleDrop.bind(this));
     this.scene.events.on('startEating', this.handleStartEating.bind(this));
-
-    this.scene.events.on('orderTakenStartAnimation', () => {
-      // causes every customer on screen to sitWait
-      // this.customers.forEach(customer => customer.playCustomerAnimation('SitWait'));
-    });
   }
 
   handlePointerDown(pointer, localX, localY, event) {
@@ -131,7 +126,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
       this.booth = target.parentContainer;
       this.isSeated = true;
       this.setPosition(this.booth.x, this.booth.y);
-      this.booth.setBoothOccupied(true);
+      this.booth.setBoothOccupied(true, this);
       this.customers.forEach(customer => {
         customer.chair.setColor(customer.color);
         customer.playCustomerAnimation('Menu');
@@ -154,7 +149,7 @@ class CustomerGroup extends Phaser.GameObjects.Container {
         this.isWaiting = false;
         this.customers.forEach(customer => customer.playCustomerAnimation('Eat'));
         this.scene.time.delayedCall(this.speed, () => {
-          this.booth.finishedEating(meal, this);
+          this.booth.finishedEating(meal);
           this.checkReady = true;
           this.customers.forEach(customer => customer.playCustomerAnimation('ReadyToOrder'));
         });
