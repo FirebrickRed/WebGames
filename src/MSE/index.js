@@ -14,18 +14,29 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const registerStation = this.textures.get('RegisterStation').getSourceImage();
-    const brewedCoffeeStation = this.textures.get('BrewedCoffeeStation').getSourceImage();
-    this.backgroundWidth = registerStation.width + brewedCoffeeStation.width;
+    const registerStationImage = this.textures.get('RegisterStation').getSourceImage();
+    const brewedCoffeeStationImage = this.textures.get('BrewedCoffeeStation').getSourceImage();
 
-    const stationsContainer = this.add.container(0, this.cameras.main.centerY);
+    const stationImages = [
+      { key: 'RegisterStation', image: registerStationImage },
+      { key: 'BrewedCoffeeStation', image: brewedCoffeeStationImage }
+    ];
 
     let xPosition = 0;
-    stationsContainer.add(this.add.image(xPosition, 0, 'RegisterStation').setOrigin(0, 0.5));
-    xPosition += registerStation.width;
-    stationsContainer.add(this.add.image(xPosition, 0, 'BrewedCoffeeStation').setOrigin(0, 0.5));
 
-    this.stations = [registerStation, brewedCoffeeStation];
+    stationImages.forEach(station => {
+      const image = this.add.image(xPosition, this.cameras.main.centerY, station.key).setOrigin(0, 0.5);
+      const width = station.image.width;
+
+      this.stations.push(image);
+      xPosition += width;
+    });
+
+    this.backgroundWidth = xPosition;
+
+    const firstStationDuplicate = this.add.image(xPosition, this.cameras.main.centerY, stationImages[0].key).setOrigin(0, 0.5);
+    this.backgroundWidth += firstStationDuplicate.width;
+    this.stations.push(firstStationDuplicate);
 
     this.keys = this.input.keyboard.addKeys({
       left: Phaser.Input.Keyboard.KeyCodes.A,
@@ -50,27 +61,19 @@ class GameScene extends Phaser.Scene {
       this.wrapCamera();
     }
   }
-  
-  // wrapCamera() {
-  //   const maxScrollX = this.backgroundWidth - this.cameras.main.width;
-
-  //   if(this.cameras.main.scrollX < 0) {
-  //     this.cameras.main.scrollX = maxScrollX;
-  //   } else if(this.cameras.main.scrollX > maxScrollX) {
-  //     this.cameras.main.scrollX = 0;
-  //   }
-  // }
 
   wrapCamera() {
+    // The maximum x position the camera can scroll to, not including the duplicated wrap image
     const maxScrollX = this.backgroundWidth - this.cameras.main.width;
   
-    // Check if the camera has moved past the beginning or the end of the scrollable area
+    // When wrapping to the left, ensure we land on the last unique image.
     if (this.cameras.main.scrollX < 0) {
-      // Smoothly move the camera to the end plus the overlap
       this.cameras.main.scrollX = maxScrollX + this.cameras.main.scrollX;
-    } else if (this.cameras.main.scrollX > maxScrollX) {
-      // Wrap around by adjusting the scroll position back to the beginning minus the overlap
-      this.cameras.main.scrollX = this.cameras.main.scrollX - maxScrollX;
+    }
+  
+    // When wrapping to the right, reset to the beginning to show the first image.
+    else if (this.cameras.main.scrollX >= maxScrollX) {
+      this.cameras.main.scrollX -= maxScrollX;
     }
   }
 }
