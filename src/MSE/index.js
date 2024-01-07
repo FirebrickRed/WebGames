@@ -2,48 +2,75 @@
 class GameScene extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
-    this.centerX;
-    this.centerY;
-    this.cameraSpeed = 4;
-    this.backgroundWidth = 2560;
+    this.stations = [];
+    this.cameraSpeed = 5;
+    this.backgroundWidth = 0;
   }
 
   preload() {
     this.load.baseURL = 'assets/MSE/';
-    this.load.image('background', 'CoffeeShop.jpg');
+    this.load.image('RegisterStation', 'RegisterStation.jpg');
+    this.load.image('BrewedCoffeeStation', 'BrewedCoffeeStation.jpg');
   }
 
   create() {
-    this.add.image(0, 0, 'background').setOrigin(0);
-    this.centerX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
-    this.centerY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+    const registerStation = this.textures.get('RegisterStation').getSourceImage();
+    const brewedCoffeeStation = this.textures.get('BrewedCoffeeStation').getSourceImage();
+    this.backgroundWidth = registerStation.width + brewedCoffeeStation.width;
 
-    this.cameras.main.setBounds(0, 0, this.backgroundWidth, 720);
+    const stationsContainer = this.add.container(0, this.cameras.main.centerY);
 
-    this.cameras.main.setScroll(this.centerX, this.centerY);
+    let xPosition = 0;
+    stationsContainer.add(this.add.image(xPosition, 0, 'RegisterStation').setOrigin(0, 0.5));
+    xPosition += registerStation.width;
+    stationsContainer.add(this.add.image(xPosition, 0, 'BrewedCoffeeStation').setOrigin(0, 0.5));
+
+    this.stations = [registerStation, brewedCoffeeStation];
 
     this.keys = this.input.keyboard.addKeys({
-      a: Phaser.Input.Keyboard.KeyCodes.A,
-      d: Phaser.Input.Keyboard.KeyCodes.D
+      left: Phaser.Input.Keyboard.KeyCodes.A,
+      right: Phaser.Input.Keyboard.KeyCodes.D
     });
   }
 
   update() {
-    if(this.keys.a.isDown) {
+    let moved = false;
+
+    if(this.keys.left.isDown) {
       this.cameras.main.scrollX -= this.cameraSpeed;
-      this.wrapCamera();
+      moved = true;
     }
-    if(this.keys.d.isDown) {
+
+    if(this.keys.right.isDown) {
       this.cameras.main.scrollX += this.cameraSpeed;
+      moved = true;
+    }
+
+    if(moved) {
       this.wrapCamera();
     }
   }
   
+  // wrapCamera() {
+  //   const maxScrollX = this.backgroundWidth - this.cameras.main.width;
+
+  //   if(this.cameras.main.scrollX < 0) {
+  //     this.cameras.main.scrollX = maxScrollX;
+  //   } else if(this.cameras.main.scrollX > maxScrollX) {
+  //     this.cameras.main.scrollX = 0;
+  //   }
+  // }
+
   wrapCamera() {
-    if(this.cameras.main.scrollX < 0) {
-      this.cameras.main.scrollX = this.backgroundWidth - this.cameras.main.width;
-    } else if(this.cameras.main.scrollX > this.backgroundWidth - this.cameras.main.width) {
-      this.cameras.main.scrollX = 0;
+    const maxScrollX = this.backgroundWidth - this.cameras.main.width;
+  
+    // Check if the camera has moved past the beginning or the end of the scrollable area
+    if (this.cameras.main.scrollX < 0) {
+      // Smoothly move the camera to the end plus the overlap
+      this.cameras.main.scrollX = maxScrollX + this.cameras.main.scrollX;
+    } else if (this.cameras.main.scrollX > maxScrollX) {
+      // Wrap around by adjusting the scroll position back to the beginning minus the overlap
+      this.cameras.main.scrollX = this.cameras.main.scrollX - maxScrollX;
     }
   }
 }
