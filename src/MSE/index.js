@@ -1,3 +1,4 @@
+import { createStation } from "./station";
 
 class GameScene extends Phaser.Scene {
   constructor() {
@@ -11,37 +12,46 @@ class GameScene extends Phaser.Scene {
     this.load.baseURL = 'assets/MSE/';
     this.load.image('RegisterStation', 'RegisterStation.jpg');
     this.load.image('BrewedCoffeeStation', 'BrewedCoffeeStation.jpg');
+    this.load.image('buttonTexture', 'buttonTexture.png');
   }
 
   create() {
-    const registerStationImage = this.textures.get('RegisterStation').getSourceImage();
-    const brewedCoffeeStationImage = this.textures.get('BrewedCoffeeStation').getSourceImage();
-
-    const stationImages = [
-      { key: 'RegisterStation', image: registerStationImage },
-      { key: 'BrewedCoffeeStation', image: brewedCoffeeStationImage }
-    ];
-
-    let xPosition = 0;
-
-    stationImages.forEach(station => {
-      const image = this.add.image(xPosition, this.cameras.main.centerY, station.key).setOrigin(0, 0.5);
-      const width = station.image.width;
-
-      this.stations.push(image);
-      xPosition += width;
-    });
-
-    this.backgroundWidth = xPosition;
-
-    const firstStationDuplicate = this.add.image(xPosition, this.cameras.main.centerY, stationImages[0].key).setOrigin(0, 0.5);
-    this.backgroundWidth += firstStationDuplicate.width;
-    this.stations.push(firstStationDuplicate);
+    this.createStations();
+    this.backgroundWidth = this.stations.reduce((width, station) => width + station.width, 0);
 
     this.keys = this.input.keyboard.addKeys({
       left: Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D
     });
+  }
+
+  createStations() {
+    const stationKeys = ['RegisterStation', 'BrewedCoffeeStation'];
+    let currentPosition = 0;
+
+    stationKeys.forEach(key => {
+      const stationWidth = this.textures.get(key).getSourceImage().width;
+      const x = currentPosition + stationWidth / 2;
+      currentPosition += stationWidth;
+
+      const station = createStation(this, key, x, this.scale.height / 2);
+      if(station) {
+        this.stations.push(station);
+        this.add.existing(station);
+      }
+    });
+
+    if (this.stations.length > 0) {
+      const firstStation = this.stations[0];
+      const duplicateStation = createStation(this, firstStation.texture.key, currentPosition + firstStation.width / 2, this.scale.height / 2);
+      if (duplicateStation) {
+        this.stations.push(duplicateStation);
+        this.add.existing(duplicateStation);
+        currentPosition += firstStation.width;
+      }
+    }
+  
+    this.backgroundWidth = currentPosition;
   }
 
   update() {
@@ -63,16 +73,11 @@ class GameScene extends Phaser.Scene {
   }
 
   wrapCamera() {
-    // The maximum x position the camera can scroll to, not including the duplicated wrap image
     const maxScrollX = this.backgroundWidth - this.cameras.main.width;
   
-    // When wrapping to the left, ensure we land on the last unique image.
     if (this.cameras.main.scrollX < 0) {
       this.cameras.main.scrollX = maxScrollX + this.cameras.main.scrollX;
-    }
-  
-    // When wrapping to the right, reset to the beginning to show the first image.
-    else if (this.cameras.main.scrollX >= maxScrollX) {
+    } else if (this.cameras.main.scrollX >= maxScrollX) {
       this.cameras.main.scrollX -= maxScrollX;
     }
   }
